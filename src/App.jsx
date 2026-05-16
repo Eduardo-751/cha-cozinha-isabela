@@ -6,6 +6,7 @@ export default function WeddingSite() {
     'Jéssica Santos',
     'Mariana Camargo',
   ];
+
   const gifts = [
     {
       name: 'Jogo de Panelas',
@@ -18,7 +19,7 @@ export default function WeddingSite() {
       name: 'Air Fryer',
       store: 'Amazon',
       reserved: true,
-      reservedBy: 'Mariana Silva',
+      reservedBy: 'Mariana Camargo',
       link: '#',
     },
     {
@@ -31,33 +32,52 @@ export default function WeddingSite() {
   ];
 
   return (
-    <div className="min-h-screen bg-white text-stone-800">
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        <img
-          src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?q=80&w=1600&auto=format&fit=crop"
-          alt="Casamento"
-          className="absolute inset-0 w-full h-full object-cover"
-        />
+    <div className="min-h-screen bg-gradient-to-b from-[#fdfcfb] to-[#f5efe8] text-stone-800 font-[sans-serif]">
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden px-6">
+        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1522673607200-164d1b6ce486?q=80&w=1600&auto=format&fit=crop')] bg-cover bg-center scale-105" />
 
-        <div className="absolute inset-0 bg-white/40 backdrop-blur-[1px]" />
+        <div className="absolute inset-0 bg-white/80 backdrop-blur-[2px]" />
 
-        <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
-          <p className="uppercase tracking-[0.4em] text-sm mb-6 text-stone-600">
-            Chá de Cozinha
-          </p>
+        <div className="relative z-10 max-w-5xl mx-auto text-center">
+          <div className="inline-flex items-center gap-2 bg-white/80 backdrop-blur px-5 py-2 rounded-full border border-stone-200 shadow-sm mb-8">
+            <span className="text-xs tracking-[0.35em] uppercase text-stone-600">
+              Chá de Cozinha
+            </span>
+          </div>
 
-          <h1 className="text-5xl md:text-8xl font-extralight mb-8 text-stone-900 leading-tight">
-            Isabela
+          <h1 className="text-5xl md:text-8xl font-extralight tracking-tight text-stone-900 leading-none mb-8">
+            Isabela de
+            <br />
+            Lurdes Lima Manoel
           </h1>
 
-          <p className="text-lg md:text-2xl max-w-2xl mx-auto text-stone-700 leading-relaxed">
-            Estamos muito felizes em celebrar esse momento especial com você.
+          <p className="max-w-2xl mx-auto text-lg md:text-2xl text-stone-700 leading-relaxed mb-10">
+            Um momento especial preparado com carinho para celebrar uma nova fase.
+            Sua presença tornará esse dia ainda mais inesquecível ✨
           </p>
+
+          <div className="flex flex-wrap items-center justify-center gap-4">
+            <div className="bg-white rounded-3xl px-8 py-5 shadow-[0_15px_60px_rgba(0,0,0,0.06)] border border-stone-100 min-w-[220px]">
+              <p className="text-sm uppercase tracking-[0.3em] text-stone-500 mb-2">
+                Data
+              </p>
+              <p className="text-2xl font-light text-stone-900">
+                04 Julho 2026
+              </p>
+            </div>
+
+            <div className="bg-white rounded-3xl px-8 py-5 shadow-[0_15px_60px_rgba(0,0,0,0.06)] border border-stone-100 min-w-[220px]">
+              <p className="text-sm uppercase tracking-[0.3em] text-stone-500 mb-2">
+                Horário
+              </p>
+              <p className="text-2xl font-light text-stone-900">15h00</p>
+            </div>
+          </div>
         </div>
       </section>
 
-      <section className="max-w-6xl mx-auto px-6 py-24 grid md:grid-cols-2 gap-10">
-        <div className="bg-white/90 backdrop-blur rounded-[32px] shadow-lg p-10 border border-stone-100">
+      <section className="max-w-6xl mx-auto px-6 -mt-24 relative z-20 grid md:grid-cols-2 gap-8">
+        <div className="bg-white/90 backdrop-blur rounded-[36px] shadow-[0_15px_60px_rgba(0,0,0,0.06)] p-10 border border-stone-100">
           <h2 className="text-4xl font-extralight mb-8 text-stone-900">Informações</h2>
 
           <div className="space-y-4 text-stone-600">
@@ -78,7 +98,7 @@ export default function WeddingSite() {
           </div>
         </div>
 
-        <div className="bg-white/90 backdrop-blur rounded-[32px] shadow-lg p-10 border border-stone-100">
+        <div className="bg-white/90 backdrop-blur rounded-[36px] shadow-[0_15px_60px_rgba(0,0,0,0.06)] p-10 border border-stone-100">
           <h2 className="text-4xl font-extralight mb-8 text-stone-900">Confirmação de Presença</h2>
 
           <form
@@ -119,7 +139,7 @@ export default function WeddingSite() {
         </div>
       </section>
 
-      <section className="bg-stone-50 py-24 px-6">
+      <section className="bg-gradient-to-b from-[#f5f1eb] to-[#fcfaf7] py-28 px-6 mt-24">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-14">
             <p className="uppercase tracking-[0.3em] text-sm text-stone-500 mb-3">
@@ -139,7 +159,7 @@ export default function WeddingSite() {
             {gifts.map((gift) => (
               <div
                 key={gift.name}
-                className="bg-white border border-stone-100 rounded-[32px] p-7 hover:-translate-y-1 hover:shadow-xl transition duration-300"
+                className="bg-white border border-stone-100 rounded-[36px] p-7 hover:-translate-y-1 hover:shadow-[0_20px_50px_rgba(0,0,0,0.08)] transition duration-300"
               >
                 <div className="h-44 rounded-3xl bg-gradient-to-br from-stone-100 to-stone-200 mb-6" />
 
@@ -196,7 +216,7 @@ export default function WeddingSite() {
         </div>
       </section>
 
-      <footer className="py-14 text-center text-stone-500 text-sm border-t border-stone-100 bg-white">
+      <footer className="py-16 text-center text-stone-400 text-sm tracking-[0.2em] uppercase border-t border-stone-100 bg-white mt-10">
         Esperamos você para celebrar esse momento especial ✨
       </footer>
     </div>
