@@ -32,33 +32,33 @@ export default function WeddingSite() {
 
   return (
     <div className="min-h-screen bg-white text-stone-800">
-      <section className="relative h-[80vh] flex items-center justify-center overflow-hidden">
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
         <img
           src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?q=80&w=1600&auto=format&fit=crop"
           alt="Casamento"
           className="absolute inset-0 w-full h-full object-cover"
         />
 
-        <div className="absolute inset-0 bg-black/40" />
+        <div className="absolute inset-0 bg-white/40 backdrop-blur-[1px]" />
 
-        <div className="relative z-10 text-center text-white px-6">
-          <p className="uppercase tracking-[0.3em] text-sm mb-4">
+        <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
+          <p className="uppercase tracking-[0.4em] text-sm mb-6 text-stone-600">
             Chá de Cozinha
           </p>
 
-          <h1 className="text-5xl md:text-7xl font-light mb-6">
+          <h1 className="text-5xl md:text-8xl font-extralight mb-8 text-stone-900 leading-tight">
             Isabela
           </h1>
 
-          <p className="text-lg md:text-xl max-w-2xl mx-auto">
+          <p className="text-lg md:text-2xl max-w-2xl mx-auto text-stone-700 leading-relaxed">
             Estamos muito felizes em celebrar esse momento especial com você.
           </p>
         </div>
       </section>
 
-      <section className="max-w-5xl mx-auto px-6 py-20 grid md:grid-cols-2 gap-10">
-        <div className="bg-white rounded-3xl shadow-sm p-8 border border-stone-200">
-          <h2 className="text-3xl font-light mb-6">Informações</h2>
+      <section className="max-w-6xl mx-auto px-6 py-24 grid md:grid-cols-2 gap-10">
+        <div className="bg-white/90 backdrop-blur rounded-[32px] shadow-lg p-10 border border-stone-100">
+          <h2 className="text-4xl font-extralight mb-8 text-stone-900">Informações</h2>
 
           <div className="space-y-4 text-stone-600">
             <div>
@@ -78,8 +78,8 @@ export default function WeddingSite() {
           </div>
         </div>
 
-        <div className="bg-white rounded-3xl shadow-sm p-8 border border-stone-200">
-          <h2 className="text-3xl font-light mb-6">Confirmação de Presença</h2>
+        <div className="bg-white/90 backdrop-blur rounded-[32px] shadow-lg p-10 border border-stone-100">
+          <h2 className="text-4xl font-extralight mb-8 text-stone-900">Confirmação de Presença</h2>
 
           <form
               className="space-y-4"
@@ -111,7 +111,7 @@ export default function WeddingSite() {
 
             <button
               type="submit"
-              className="w-full bg-stone-900 text-white rounded-2xl py-3 hover:opacity-90 transition"
+              className="w-full bg-stone-900 text-white rounded-2xl py-4 text-lg hover:scale-[1.01] transition duration-300 shadow-md"
             >
               Confirmar presença
             </button>
@@ -119,7 +119,7 @@ export default function WeddingSite() {
         </div>
       </section>
 
-      <section className="bg-white py-20 px-6">
+      <section className="bg-stone-50 py-24 px-6">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-14">
             <p className="uppercase tracking-[0.3em] text-sm text-stone-500 mb-3">
@@ -135,13 +135,13 @@ export default function WeddingSite() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-3 gap-8">
             {gifts.map((gift) => (
               <div
                 key={gift.name}
-                className="border border-stone-200 rounded-3xl p-6 hover:shadow-md transition"
+                className="bg-white border border-stone-100 rounded-[32px] p-7 hover:-translate-y-1 hover:shadow-xl transition duration-300"
               >
-                <div className="h-40 rounded-2xl bg-stone-100 mb-5" />
+                <div className="h-44 rounded-3xl bg-gradient-to-br from-stone-100 to-stone-200 mb-6" />
 
                 <div className="flex items-start justify-between gap-3 mb-3">
                   <h3 className="text-xl">{gift.name}</h3>
@@ -196,7 +196,7 @@ export default function WeddingSite() {
         </div>
       </section>
 
-      <footer className="py-10 text-center text-stone-500 text-sm">
+      <footer className="py-14 text-center text-stone-500 text-sm border-t border-stone-100 bg-white">
         Esperamos você para celebrar esse momento especial ✨
       </footer>
     </div>
