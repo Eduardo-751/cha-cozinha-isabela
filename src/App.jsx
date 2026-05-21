@@ -19,6 +19,7 @@ export default function WeddingSite() {
   const [guestName, setGuestName] = useState('');
   const [loading, setLoading] = useState(false);
   const [gifts, setGifts] = useState(giftsData);
+  const [currentSlide, setCurrentSlide] = useState(0);
 
   /* =========================
      CONFIRMAR PRESENÇA
@@ -83,16 +84,30 @@ export default function WeddingSite() {
       prev.map((gift) =>
         gift.id === giftId
           ? {
-              ...gift,
-              reserved: true,
-              reservedBy: person,
-            }
+            ...gift,
+            reserved: true,
+            reservedBy: person,
+          }
           : gift
       )
     );
 
     alert('Presente reservado com sucesso ✨');
   }
+
+  const itemsPerSlide = 3;
+
+  const nextSlide = () => {
+    if (currentSlide + itemsPerSlide < gifts.length) {
+      setCurrentSlide(currentSlide + itemsPerSlide);
+    }
+  };
+
+  const prevSlide = () => {
+    if (currentSlide - itemsPerSlide >= 0) {
+      setCurrentSlide(currentSlide - itemsPerSlide);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#fdfcfb] to-[#f5efe8] text-stone-800 font-[sans-serif]">
@@ -188,11 +203,10 @@ export default function WeddingSite() {
             <button
               type="submit"
               disabled={loading}
-              className={`w-full rounded-2xl py-4 text-lg transition duration-300 shadow-md ${
-                loading
+              className={`w-full rounded-2xl py-4 text-lg transition duration-300 shadow-md ${loading
                   ? 'bg-stone-400 text-white cursor-not-allowed'
                   : 'bg-stone-900 text-white hover:scale-[1.01]'
-              }`}
+                }`}
             >
               {loading ? 'Confirmando...' : 'Confirmar presença'}
             </button>
@@ -219,62 +233,95 @@ export default function WeddingSite() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {gifts.map((gift) => (
+          <div className="relative">
+            {/* BOTÃO ESQUERDA */}
+            <button
+              onClick={prevSlide}
+              disabled={currentSlide === 0}
+              className={`absolute left-[-20px] top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full shadow-lg transition ${currentSlide === 0
+                  ? 'bg-stone-200 text-stone-400 cursor-not-allowed'
+                  : 'bg-white text-stone-900 hover:scale-105'
+                }`}
+            >
+              ←
+            </button>
+
+            {/* BOTÃO DIREITA */}
+            <button
+              onClick={nextSlide}
+              disabled={currentSlide + itemsPerSlide >= gifts.length}
+              className={`absolute right-[-20px] top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full shadow-lg transition ${currentSlide + itemsPerSlide >= gifts.length
+                  ? 'bg-stone-200 text-stone-400 cursor-not-allowed'
+                  : 'bg-white text-stone-900 hover:scale-105'
+                }`}
+            >
+              →
+            </button>
+
+            {/* CARDS */}
+            <div className="overflow-hidden">
               <div
-                key={gift.id}
-                className="bg-white border border-stone-100 rounded-[36px] overflow-hidden hover:-translate-y-1 hover:shadow-[0_20px_50px_rgba(0,0,0,0.08)] transition duration-300"
+                className="flex gap-8 transition-transform duration-500"
+                style={{
+                  transform: `translateX(-${(currentSlide / itemsPerSlide) * 100
+                    }%)`,
+                }}
               >
-                <img
-                  src={gift.image}
-                  alt={gift.name}
-                  className="h-64 w-full object-cover"
-                />
+                {gifts.map((gift) => (
+                  <div
+                    key={gift.id}
+                    className="min-w-[100%] md:min-w-[calc(50%-16px)] lg:min-w-[calc(33.333%-22px)] bg-white border border-stone-100 rounded-[36px] overflow-hidden hover:-translate-y-1 hover:shadow-[0_20px_50px_rgba(0,0,0,0.08)] transition duration-300"
+                  >
+                    <img
+                      src={gift.image}
+                      alt={gift.name}
+                      className="h-64 w-full object-cover"
+                    />
 
-                <div className="p-7">
-                  <div className="flex items-start justify-between gap-3 mb-4">
-                    <h3 className="text-2xl font-light text-stone-900">
-                      {gift.name}
-                    </h3>
+                    <div className="p-7">
+                      <div className="flex items-start justify-between gap-3 mb-4">
+                        <h3 className="text-2xl font-light text-stone-900">
+                          {gift.name}
+                        </h3>
 
-                    <div
-                      className={`text-xs px-3 py-1 rounded-full whitespace-nowrap ${
-                        gift.reserved
-                          ? 'bg-stone-900 text-white'
-                          : 'bg-stone-100 text-stone-700'
-                      }`}
-                    >
-                      {gift.reserved ? 'Reservado' : 'Disponível'}
+                        <div
+                          className={`text-xs px-3 py-1 rounded-full whitespace-nowrap ${gift.reserved
+                              ? 'bg-stone-900 text-white'
+                              : 'bg-stone-100 text-stone-700'
+                            }`}
+                        >
+                          {gift.reserved ? 'Reservado' : 'Disponível'}
+                        </div>
+                      </div>
+
+                      {gift.reserved ? (
+                        <p className="text-stone-600 mb-6">
+                          Escolhido por{' '}
+                          <span className="font-medium">
+                            {gift.reservedBy}
+                          </span>
+                        </p>
+                      ) : (
+                        <div className="mb-6" />
+                      )}
+
+                      <button
+                        onClick={() => reserveGift(gift.id)}
+                        disabled={gift.reserved}
+                        className={`w-full rounded-2xl py-4 transition ${gift.reserved
+                            ? 'bg-stone-200 text-stone-500 cursor-not-allowed'
+                            : 'bg-stone-900 text-white hover:opacity-90'
+                          }`}
+                      >
+                        {gift.reserved
+                          ? 'Presente já escolhido'
+                          : 'Quero presentear'}
+                      </button>
                     </div>
                   </div>
-
-                  {gift.reserved ? (
-                    <p className="text-stone-600 mb-6">
-                      Escolhido por{' '}
-                      <span className="font-medium">
-                        {gift.reservedBy}
-                      </span>
-                    </p>
-                  ) : (
-                    <div className="mb-6" />
-                  )}
-
-                  <button
-                    onClick={() => reserveGift(gift.id)}
-                    disabled={gift.reserved}
-                    className={`w-full rounded-2xl py-4 transition ${
-                      gift.reserved
-                        ? 'bg-stone-200 text-stone-500 cursor-not-allowed'
-                        : 'bg-stone-900 text-white hover:opacity-90'
-                    }`}
-                  >
-                    {gift.reserved
-                      ? 'Presente já escolhido'
-                      : 'Quero presentear'}
-                  </button>
-                </div>
+                ))}
               </div>
-            ))}
+            </div>
           </div>
         </div>
       </section>
