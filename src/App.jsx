@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { giftsData } from './gifts';
+import { giftsData } from './data/gifts';
 import { db } from './firebase';
 
 import {
@@ -34,7 +34,7 @@ export default function WeddingSite() {
      LISTA DE PRESENTES
   ========================= */
 
-  import { giftsData } from './gifts';
+  import { giftsData } from './data/gifts';
 
   /* =========================
      CONFIRMAR PRESENÇA
