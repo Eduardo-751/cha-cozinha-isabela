@@ -1,4 +1,19 @@
+import { useState } from 'react';
+import { db } from './firebase';
+
+import {
+  collection,
+  addDoc,
+  serverTimestamp,
+  query,
+  where,
+  getDocs,
+} from 'firebase/firestore';
+
 export default function WeddingSite() {
+  const [guestName, setGuestName] = useState('');
+  const [loading, setLoading] = useState(false);
+
   const guests = [
     'Ana Márcia',
     'Natália Aparecida',
@@ -31,8 +46,69 @@ export default function WeddingSite() {
     },
   ];
 
+  /* =========================================
+     CONFIRMAR PRESENÇA
+  ========================================= */
+
+  async function handleConfirm(e) {
+    e.preventDefault();
+
+    const normalizedName = guestName.trim();
+
+    if (!normalizedName) {
+      alert('Digite seu nome.');
+      return;
+    }
+
+    const authorized = guests.some(
+      (guest) =>
+        guest.toLowerCase() === normalizedName.toLowerCase()
+    );
+
+    if (!authorized) {
+      alert('Seu nome não está na lista de convidadas.');
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      // Verifica se já confirmou presença
+      const confirmationsRef = collection(db, 'confirmacoes');
+
+      const q = query(
+        confirmationsRef,
+        where('nome', '==', normalizedName)
+      );
+
+      const querySnapshot = await getDocs(q);
+
+      if (!querySnapshot.empty) {
+        alert('Você já confirmou presença ✨');
+        setLoading(false);
+        return;
+      }
+
+      // Salva confirmação
+      await addDoc(confirmationsRef, {
+        nome: normalizedName,
+        confirmadoEm: serverTimestamp(),
+      });
+
+      alert('Presença confirmada com sucesso ✨');
+
+      setGuestName('');
+    } catch (error) {
+      console.error(error);
+      alert('Erro ao confirmar presença.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#fdfcfb] to-[#f5efe8] text-stone-800 font-[sans-serif]">
+      {/* HERO */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden px-6">
         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1522673607200-164d1b6ce486?q=80&w=1600&auto=format&fit=crop')] bg-cover bg-center scale-105" />
 
@@ -61,6 +137,7 @@ export default function WeddingSite() {
               <p className="text-sm uppercase tracking-[0.3em] text-stone-500 mb-2">
                 Data
               </p>
+
               <p className="text-2xl font-light text-stone-900">
                 04 Julho 2026
               </p>
@@ -70,15 +147,22 @@ export default function WeddingSite() {
               <p className="text-sm uppercase tracking-[0.3em] text-stone-500 mb-2">
                 Horário
               </p>
-              <p className="text-2xl font-light text-stone-900">15h00</p>
+
+              <p className="text-2xl font-light text-stone-900">
+                15h00
+              </p>
             </div>
           </div>
         </div>
       </section>
 
+      {/* INFO + RSVP */}
       <section className="max-w-6xl mx-auto px-6 -mt-24 relative z-20 grid md:grid-cols-2 gap-8">
+        {/* INFO */}
         <div className="bg-white/90 backdrop-blur rounded-[36px] shadow-[0_15px_60px_rgba(0,0,0,0.06)] p-10 border border-stone-100">
-          <h2 className="text-4xl font-extralight mb-8 text-stone-900">Informações</h2>
+          <h2 className="text-4xl font-extralight mb-8 text-stone-900">
+            Informações
+          </h2>
 
           <div className="space-y-4 text-stone-600">
             <div>
@@ -98,47 +182,37 @@ export default function WeddingSite() {
           </div>
         </div>
 
+        {/* CONFIRMAÇÃO */}
         <div className="bg-white/90 backdrop-blur rounded-[36px] shadow-[0_15px_60px_rgba(0,0,0,0.06)] p-10 border border-stone-100">
-          <h2 className="text-4xl font-extralight mb-8 text-stone-900">Confirmação de Presença</h2>
+          <h2 className="text-4xl font-extralight mb-8 text-stone-900">
+            Confirmação de Presença
+          </h2>
 
-          <form
-              className="space-y-4"
-              onSubmit={(e) => {
-                e.preventDefault();
-
-                const form = e.currentTarget;
-                const input = form.querySelector('input');
-                const guestName = input.value.trim();
-
-                const authorized = guests.some(
-                  (guest) =>
-                    guest.toLowerCase() === guestName.toLowerCase()
-                );
-
-                if (!authorized) {
-                  alert('Seu nome não está na lista de convidadas.');
-                  return;
-                }
-
-                alert('Presença confirmada com sucesso ✨');
-              }}
-            >
+          <form className="space-y-4" onSubmit={handleConfirm}>
             <input
               type="text"
+              value={guestName}
+              onChange={(e) => setGuestName(e.target.value)}
               placeholder="Digite seu nome completo"
               className="w-full border border-stone-200 rounded-2xl px-4 py-3 outline-none focus:ring-2 focus:ring-stone-300"
             />
 
             <button
               type="submit"
-              className="w-full bg-stone-900 text-white rounded-2xl py-4 text-lg hover:scale-[1.01] transition duration-300 shadow-md"
+              disabled={loading}
+              className={`w-full rounded-2xl py-4 text-lg transition duration-300 shadow-md ${
+                loading
+                  ? 'bg-stone-400 text-white cursor-not-allowed'
+                  : 'bg-stone-900 text-white hover:scale-[1.01]'
+              }`}
             >
-              Confirmar presença
+              {loading ? 'Confirmando...' : 'Confirmar presença'}
             </button>
           </form>
         </div>
       </section>
 
+      {/* PRESENTES */}
       <section className="bg-gradient-to-b from-[#f5f1eb] to-[#fcfaf7] py-28 px-6 mt-24">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-14">
@@ -151,7 +225,9 @@ export default function WeddingSite() {
             </h2>
 
             <p className="text-stone-600 max-w-2xl mx-auto">
-              Sua presença já vai deixar esse dia ainda mais especial, mas também deixei algumas sugestões de presentes para quem quiser participar desse momento com carinho.
+              Sua presença já vai deixar esse dia ainda mais especial,
+              mas também deixei algumas sugestões de presentes para quem quiser
+              participar desse momento com carinho.
             </p>
           </div>
 
@@ -181,7 +257,10 @@ export default function WeddingSite() {
 
                 {gift.reserved && (
                   <p className="text-sm text-stone-600 mb-5">
-                    Escolhido por <span className="font-medium">{gift.reservedBy}</span>
+                    Escolhido por{' '}
+                    <span className="font-medium">
+                      {gift.reservedBy}
+                    </span>
                   </p>
                 )}
 
@@ -216,6 +295,7 @@ export default function WeddingSite() {
         </div>
       </section>
 
+      {/* FOOTER */}
       <footer className="py-16 text-center text-stone-400 text-sm tracking-[0.2em] uppercase border-t border-stone-100 bg-white mt-10">
         Esperamos você para celebrar esse momento especial ✨
       </footer>
