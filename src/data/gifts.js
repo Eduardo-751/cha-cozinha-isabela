@@ -1,8 +1,8 @@
-import queijeiraImg from '../data/queijeira.jpg';
-import jarraImg from '../data/jarraImg';
-import espremedorImg from '../data/espremedor.jpg';
-import tabuaImg from '../data/tabua.jpg';
-import assadeiraImg from '../data/assadeira.jpg';
+import queijeiraImg from '../assets/queijeiraImg.jpg';
+import jarraImg from '../assets/jarraImg.jpg';
+import espremedorImg from '../assets/espremedorImg.jpg';
+import tabuaImg from '../assets/tabuaImg.jpg';
+import assadeiraImg from '../assets/assadeiraImg.jpg';
 
 export const giftsData = [
   {
