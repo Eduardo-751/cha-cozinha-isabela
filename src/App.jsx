@@ -14,14 +14,6 @@ export default function WeddingSite() {
   const [guestName, setGuestName] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const guests = [
-    'Ana Márcia',
-    'Natália Aparecida',
-    'Soeli Camargo',
-    'Jéssica Santos',
-    'Mariana Camargo',
-  ];
-
   const gifts = [
     {
       name: 'Jogo de Panelas',
@@ -51,60 +43,50 @@ export default function WeddingSite() {
   ========================================= */
 
   async function handleConfirm(e) {
-    e.preventDefault();
+  e.preventDefault();
 
-    const normalizedName = guestName.trim();
+  const normalizedName = guestName.trim().toLowerCase();
 
-    if (!normalizedName) {
-      alert('Digite seu nome.');
-      return;
-    }
+  if (!normalizedName) {
+    alert('Digite seu nome.');
+    return;
+  }
 
-    const authorized = guests.some(
-      (guest) =>
-        guest.toLowerCase() === normalizedName.toLowerCase()
+  try {
+    setLoading(true);
+
+    const confirmationsRef = collection(db, 'confirmacoes');
+
+    // verifica se já existe
+    const q = query(
+      confirmationsRef,
+      where('nome', '==', normalizedName)
     );
 
-    if (!authorized) {
-      alert('Seu nome não está na lista de convidadas.');
+    const querySnapshot = await getDocs(q);
+
+    if (!querySnapshot.empty) {
+      alert('Esse nome já confirmou presença ✨');
+      setLoading(false);
       return;
     }
 
-    try {
-      setLoading(true);
+    // salva no firebase
+    await addDoc(confirmationsRef, {
+      nome: normalizedName,
+      confirmadoEm: serverTimestamp(),
+    });
 
-      // Verifica se já confirmou presença
-      const confirmationsRef = collection(db, 'confirmacoes');
+    alert('Presença confirmada com sucesso ✨');
 
-      const q = query(
-        confirmationsRef,
-        where('nome', '==', normalizedName)
-      );
-
-      const querySnapshot = await getDocs(q);
-
-      if (!querySnapshot.empty) {
-        alert('Você já confirmou presença ✨');
-        setLoading(false);
-        return;
-      }
-
-      // Salva confirmação
-      await addDoc(confirmationsRef, {
-        nome: normalizedName,
-        confirmadoEm: serverTimestamp(),
-      });
-
-      alert('Presença confirmada com sucesso ✨');
-
-      setGuestName('');
-    } catch (error) {
-      console.error(error);
-      alert('Erro ao confirmar presença.');
-    } finally {
-      setLoading(false);
-    }
+    setGuestName('');
+  } catch (error) {
+    console.error('ERRO FIREBASE:', error);
+    alert(error.message);
+  } finally {
+    setLoading(false);
   }
+}
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#fdfcfb] to-[#f5efe8] text-stone-800 font-[sans-serif]">
