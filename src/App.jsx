@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { giftsData } from './gifts';
 import { db } from './firebase';
 
 import {
@@ -10,83 +11,104 @@ import {
   getDocs,
 } from 'firebase/firestore';
 
+/* =========================
+   IMAGENS
+========================= */
+
+import queijeiraImg from './assets/queijeira.jpg';
+import jarraImg from './assets/jarra.jpg';
+import espremedorImg from './assets/espremedor.jpg';
+import tabuaImg from './assets/tabua.jpg';
+import assadeiraImg from './assets/assadeira.jpg';
+
+/* =========================
+   COMPONENT
+========================= */
+
 export default function WeddingSite() {
   const [guestName, setGuestName] = useState('');
   const [loading, setLoading] = useState(false);
+  const [gifts, setGifts] = useState(giftsData);
 
-  const gifts = [
-    {
-      name: 'Jogo de Panelas',
-      store: 'Magazine Luiza',
-      reserved: false,
-      reservedBy: '',
-      link: '#',
-    },
-    {
-      name: 'Air Fryer',
-      store: 'Amazon',
-      reserved: true,
-      reservedBy: 'Mariana Camargo',
-      link: '#',
-    },
-    {
-      name: 'Jogo de Cama',
-      store: 'Camicado',
-      reserved: false,
-      reservedBy: '',
-      link: '#',
-    },
-  ];
+  /* =========================
+     LISTA DE PRESENTES
+  ========================= */
 
-  /* =========================================
+  import { giftsData } from './gifts';
+
+  /* =========================
      CONFIRMAR PRESENÇA
-  ========================================= */
+  ========================= */
 
   async function handleConfirm(e) {
-  e.preventDefault();
+    e.preventDefault();
 
-  const normalizedName = guestName.trim().toLowerCase();
+    const normalizedName = guestName.trim();
 
-  if (!normalizedName) {
-    alert('Digite seu nome.');
-    return;
-  }
-
-  try {
-    setLoading(true);
-
-    const confirmationsRef = collection(db, 'confirmacoes');
-
-    // verifica se já existe
-    const q = query(
-      confirmationsRef,
-      where('nome', '==', normalizedName)
-    );
-
-    const querySnapshot = await getDocs(q);
-
-    if (!querySnapshot.empty) {
-      alert('Esse nome já confirmou presença ✨');
-      setLoading(false);
+    if (!normalizedName) {
+      alert('Digite seu nome.');
       return;
     }
 
-    // salva no firebase
-    await addDoc(confirmationsRef, {
-      nome: normalizedName,
-      confirmadoEm: serverTimestamp(),
-    });
+    try {
+      setLoading(true);
 
-    alert('Presença confirmada com sucesso ✨');
+      const confirmationsRef = collection(db, 'confirmacoes');
 
-    setGuestName('');
-  } catch (error) {
-    console.error('ERRO FIREBASE:', error);
-    alert(error.message);
-  } finally {
-    setLoading(false);
+      // verifica se já confirmou
+      const q = query(
+        confirmationsRef,
+        where('nome', '==', normalizedName)
+      );
+
+      const querySnapshot = await getDocs(q);
+
+      if (!querySnapshot.empty) {
+        alert('Esse nome já confirmou presença ✨');
+        setLoading(false);
+        return;
+      }
+
+      // salva confirmação
+      await addDoc(confirmationsRef, {
+        nome: normalizedName,
+        confirmadoEm: serverTimestamp(),
+      });
+
+      alert('Presença confirmada com sucesso ✨');
+
+      setGuestName('');
+    } catch (error) {
+      console.error('ERRO FIREBASE:', error);
+      alert(error.message);
+    } finally {
+      setLoading(false);
+    }
   }
-}
+
+  /* =========================
+     RESERVAR PRESENTE
+  ========================= */
+
+  function reserveGift(giftId) {
+    const person = prompt('Digite seu nome');
+
+    if (!person) return;
+
+    setGifts((prev) =>
+      prev.map((gift) =>
+        gift.id === giftId
+          ? {
+              ...gift,
+              reserved: true,
+              reservedBy: person,
+            }
+          : gift
+      )
+    );
+
+    alert('Presente reservado com sucesso ✨');
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#fdfcfb] to-[#f5efe8] text-stone-800 font-[sans-serif]">
@@ -196,7 +218,7 @@ export default function WeddingSite() {
 
       {/* PRESENTES */}
       <section className="bg-gradient-to-b from-[#f5f1eb] to-[#fcfaf7] py-28 px-6 mt-24">
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           <div className="text-center mb-14">
             <p className="uppercase tracking-[0.3em] text-sm text-stone-500 mb-3">
               Sugestões de Presentes
@@ -213,63 +235,59 @@ export default function WeddingSite() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {gifts.map((gift) => (
               <div
-                key={gift.name}
-                className="bg-white border border-stone-100 rounded-[36px] p-7 hover:-translate-y-1 hover:shadow-[0_20px_50px_rgba(0,0,0,0.08)] transition duration-300"
+                key={gift.id}
+                className="bg-white border border-stone-100 rounded-[36px] overflow-hidden hover:-translate-y-1 hover:shadow-[0_20px_50px_rgba(0,0,0,0.08)] transition duration-300"
               >
-                <div className="h-44 rounded-3xl bg-gradient-to-br from-stone-100 to-stone-200 mb-6" />
+                <img
+                  src={gift.image}
+                  alt={gift.name}
+                  className="h-64 w-full object-cover"
+                />
 
-                <div className="flex items-start justify-between gap-3 mb-3">
-                  <h3 className="text-xl">{gift.name}</h3>
+                <div className="p-7">
+                  <div className="flex items-start justify-between gap-3 mb-4">
+                    <h3 className="text-2xl font-light text-stone-900">
+                      {gift.name}
+                    </h3>
 
-                  <div
-                    className={`text-xs px-3 py-1 rounded-full ${
-                      gift.reserved
-                        ? 'bg-stone-900 text-white'
-                        : 'bg-stone-100 text-stone-700'
-                    }`}
-                  >
-                    {gift.reserved ? 'Reservado' : 'Disponível'}
+                    <div
+                      className={`text-xs px-3 py-1 rounded-full whitespace-nowrap ${
+                        gift.reserved
+                          ? 'bg-stone-900 text-white'
+                          : 'bg-stone-100 text-stone-700'
+                      }`}
+                    >
+                      {gift.reserved ? 'Reservado' : 'Disponível'}
+                    </div>
                   </div>
-                </div>
 
-                <p className="text-stone-500 mb-3">{gift.store}</p>
+                  {gift.reserved ? (
+                    <p className="text-stone-600 mb-6">
+                      Escolhido por{' '}
+                      <span className="font-medium">
+                        {gift.reservedBy}
+                      </span>
+                    </p>
+                  ) : (
+                    <div className="mb-6" />
+                  )}
 
-                {gift.reserved && (
-                  <p className="text-sm text-stone-600 mb-5">
-                    Escolhido por{' '}
-                    <span className="font-medium">
-                      {gift.reservedBy}
-                    </span>
-                  </p>
-                )}
-
-                {!gift.reserved && <div className="mb-5" />}
-
-                <div className="space-y-3">
                   <button
-                    className={`w-full rounded-2xl py-3 transition ${
+                    onClick={() => reserveGift(gift.id)}
+                    disabled={gift.reserved}
+                    className={`w-full rounded-2xl py-4 transition ${
                       gift.reserved
                         ? 'bg-stone-200 text-stone-500 cursor-not-allowed'
                         : 'bg-stone-900 text-white hover:opacity-90'
                     }`}
-                    disabled={gift.reserved}
                   >
                     {gift.reserved
                       ? 'Presente já escolhido'
                       : 'Quero presentear'}
                   </button>
-
-                  <a
-                    href={gift.link}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center justify-center w-full border border-stone-900 text-stone-900 rounded-2xl py-3 hover:bg-stone-900 hover:text-white transition"
-                  >
-                    Ver presente
-                  </a>
                 </div>
               </div>
             ))}
