@@ -577,9 +577,9 @@ export default function WeddingSite() {
 
             <button
               onClick={prevSlide}
-              className="absolute left-2 sm:left-[-20px] top-1/2 -translate-y-1/2 z-20 w-14 h-14 rounded-full bg-white/90
-                         backdrop-blur-xl border border-stone-200 shadow-lg flex items-center justify-center hover:bg-stone-900
-                         hover:text-white transition duration-300"
+              className="hidden sm:flex absolute left-2 sm:left-[-20px] top-1/2 -translate-y-1/2 z-20 w-14 h-14 rounded-full bg-white/90
+                        backdrop-blur-xl border border-stone-200 shadow-lg flex items-center justify-center hover:bg-stone-900
+                        hover:text-white transition duration-300"
             >
               ←
             </button>
@@ -588,9 +588,9 @@ export default function WeddingSite() {
 
             <button
               onClick={nextSlide}
-              className=" absolute right-2 sm:right-[-20px] top-1/2 -translate-y-1/2 z-20 w-14 h-14 rounded-full bg-white/90
-                          backdrop-blur-xl border border-stone-200 shadow-lg flex items-center justify-center hover:bg-stone-900 
-                          hover:text-white transitio duration-300"
+              className="hidden sm:flex absolute right-2 sm:right-[-20px] top-1/2 -translate-y-1/2 z-20 w-14 h-14 rounded-full bg-white/90
+                        backdrop-blur-xl border border-stone-200 shadow-lg flex items-center justify-center hover:bg-stone-900 
+                        hover:text-white transitio duration-300"
             >
               →
             </button>
