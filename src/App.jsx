@@ -12,16 +12,6 @@ import {
 } from 'firebase/firestore';
 
 /* =========================
-   IMAGENS
-========================= */
-
-import queijeiraImg from './assets/queijeira.jpg';
-import jarraImg from './assets/jarra.jpg';
-import espremedorImg from './assets/espremedor.jpg';
-import tabuaImg from './assets/tabua.jpg';
-import assadeiraImg from './assets/assadeira.jpg';
-
-/* =========================
    COMPONENT
 ========================= */
 
@@ -29,12 +19,6 @@ export default function WeddingSite() {
   const [guestName, setGuestName] = useState('');
   const [loading, setLoading] = useState(false);
   const [gifts, setGifts] = useState(giftsData);
-
-  /* =========================
-     LISTA DE PRESENTES
-  ========================= */
-
-  import { giftsData } from './data/gifts';
 
   /* =========================
      CONFIRMAR PRESENÇA
