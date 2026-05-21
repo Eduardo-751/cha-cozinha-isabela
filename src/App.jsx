@@ -1,6 +1,16 @@
 import { useState, useEffect } from 'react';
 import { giftsData } from './data/gifts';
-import { db } from './firebase';
+import {
+  signInWithPopup,
+  signOut,
+  onAuthStateChanged,
+} from 'firebase/auth';
+
+import {
+  auth,
+  provider,
+  db,
+} from './firebase';
 
 import {
   collection,
@@ -16,6 +26,7 @@ import {
 } from 'firebase/firestore';
 
 export default function WeddingSite() {
+  const [user, setUser] = useState(null);
   const [guestName, setGuestName] = useState('');
   const [loading, setLoading] = useState(false);
   const [gifts, setGifts] = useState(giftsData);
@@ -45,6 +56,17 @@ export default function WeddingSite() {
         });
 
         setGifts(updatedGifts);
+      }
+    );
+
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      (currentUser) => {
+        setUser(currentUser);
       }
     );
 
@@ -104,59 +126,128 @@ export default function WeddingSite() {
   ========================================= */
 
   async function reserveGift(gift) {
-    const person = prompt('Digite seu nome');
+  if (!user) {
+    alert('Faça login com Google para reservar.');
+    return;
+  }
 
-    if (!person) return;
+  try {
+    const person = user.displayName;
 
+    const giftRef = doc(
+      db,
+      'presentes',
+      String(gift.id)
+    );
+
+    const giftSnap = await getDoc(giftRef);
+
+    let currentData = {
+      reservedCount: 0,
+      reservedBy: [],
+      quantity: gift.quantity,
+    };
+
+    if (giftSnap.exists()) {
+      currentData = giftSnap.data();
+    }
+
+    // verifica limite
+    if (
+      currentData.reservedCount >= currentData.quantity
+    ) {
+      alert('Esse presente já foi reservado ✨');
+      return;
+    }
+
+    // verifica se já reservou
+    const alreadyReserved =
+      currentData.reservedBy?.includes(person);
+
+    if (alreadyReserved) {
+      alert('Você já reservou este presente ✨');
+      return;
+    }
+
+    await setDoc(giftRef, {
+      quantity: currentData.quantity,
+      reservedCount:
+        currentData.reservedCount + 1,
+      reservedBy: [
+        ...(currentData.reservedBy || []),
+        person,
+      ],
+    });
+
+    alert('Presente reservado com sucesso ✨');
+  } catch (error) {
+    console.error(error);
+    alert('Erro ao reservar presente.');
+  }
+}
+
+/* =========================================
+     Cancelar Reserva
+  ========================================= */
+
+async function cancelReservation(gift) {
+  if (!user) return;
+
+  try {
+    const person = user.displayName;
+
+    const giftRef = doc(
+      db,
+      'presentes',
+      String(gift.id)
+    );
+
+    const giftSnap = await getDoc(giftRef);
+
+    if (!giftSnap.exists()) {
+      return;
+    }
+
+    const data = giftSnap.data();
+
+    const updatedNames =
+      data.reservedBy.filter(
+        (name) => name !== person
+      );
+
+    await setDoc(giftRef, {
+      ...data,
+      reservedCount: Math.max(
+        data.reservedCount - 1,
+        0
+      ),
+      reservedBy: updatedNames,
+    });
+
+    alert('Reserva cancelada ✨');
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+  /* =========================================
+     Login e Logout Google
+  ========================================= */
+
+  async function loginGoogle() {
     try {
-      const giftRef = doc(db, 'presentes', String(gift.id));
-
-      const giftSnap = await getDoc(giftRef);
-
-      let currentData = {
-        reservedCount: 0,
-        reservedBy: [],
-        quantity: gift.quantity,
-      };
-
-      if (giftSnap.exists()) {
-        currentData = giftSnap.data();
-      }
-
-      // esgotado
-      if (
-        currentData.reservedCount >= currentData.quantity
-      ) {
-        alert('Esse presente já foi reservado ✨');
-        return;
-      }
-
-      // mesma pessoa
-      const alreadyReserved =
-        currentData.reservedBy?.some(
-          (name) =>
-            name.toLowerCase() === person.toLowerCase()
-        );
-
-      if (alreadyReserved) {
-        alert('Você já reservou este presente ✨');
-        return;
-      }
-
-      await setDoc(giftRef, {
-        quantity: currentData.quantity,
-        reservedCount:
-          currentData.reservedCount + 1,
-        reservedBy: [
-          ...(currentData.reservedBy || []),
-          person,
-        ],
-      });
-
-      alert('Presente reservado com sucesso ✨');
+      await signInWithPopup(auth, provider);
     } catch (error) {
       console.error(error);
-      alert('Erro ao reservar presente.');
+      alert('Erro ao fazer login.');
+    }
+  }
+
+  async function logout() {
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error(error);
     }
   }
 
@@ -192,7 +283,41 @@ export default function WeddingSite() {
               Chá de Cozinha
             </span>
           </div>
+          <div className="flex justify-center mb-8">
+            {user ? (
+              <div className="flex items-center gap-4 bg-white/90 backdrop-blur px-5 py-3 rounded-full shadow-md border border-stone-200">
+                <img
+                  src={user.photoURL}
+                  alt={user.displayName}
+                  className="w-10 h-10 rounded-full"
+                />
 
+                <div className="text-left">
+                  <p className="text-sm text-stone-500">
+                    Conectado como
+                  </p>
+
+                  <p className="text-stone-900 font-medium">
+                    {user.displayName}
+                  </p>
+                </div>
+
+                <button
+                  onClick={logout}
+                  className="bg-stone-900 text-white px-4 py-2 rounded-xl hover:opacity-90 transition"
+                >
+                  Sair
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={loginGoogle}
+                className="bg-stone-900 text-white px-6 py-3 rounded-2xl shadow-md hover:scale-[1.02] transition"
+              >
+                Entrar com Google
+              </button>
+            )}
+          </div>
           <h1 className="text-5xl md:text-8xl font-extralight tracking-tight text-stone-900 leading-none mb-8">
             Isabela de
             <br />
