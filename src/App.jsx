@@ -9,6 +9,8 @@ import {
   doc,
   setDoc,
   onSnapshot,
+  serverTimestamp,
+  arrayRemove,
 } from 'firebase/firestore';
 
 import {
@@ -26,6 +28,8 @@ export default function WeddingSite() {
 
   const [loadingRSVP, setLoadingRSVP] = useState(false);
   const [user, setUser] = useState(null);
+  const [newCompanion, setNewCompanion] = useState('');
+  const [confirmationDoc, setConfirmationDoc] = useState(null);
   const [gifts, setGifts] = useState(giftsData);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [itemsPerSlide, setItemsPerSlide] = useState(3);
@@ -42,7 +46,7 @@ export default function WeddingSite() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
-      setConfirmed(false);
+      setConfirmed(!!currentUser);
     });
 
     return () => unsubscribe();
@@ -121,25 +125,33 @@ export default function WeddingSite() {
     try {
       setLoadingRSVP(true);
 
-      const confirmationsRef = collection(db, 'confirmacoes');
+      const ref = doc(db, 'confirmacoes', currentUser.uid);
+      const snap = await getDoc(ref);
 
-      const q = query(
-        confirmationsRef,
-        where('uid', '==', currentUser.uid)
-      );
+      if (snap.exists()) {
+        alert('Você já confirmou presença ✨');
+        return;
+      }
 
-      const querySnapshot = await getDocs(q);
-
-      await addDoc(confirmationsRef, {
+      await setDoc(ref, {
         uid: currentUser.uid,
         nome: currentUser.displayName,
         email: currentUser.email,
         foto: currentUser.photoURL,
         confirmadoEm: serverTimestamp(),
+        acompanhantes: [],
       });
 
       setConfirmed(true);
       alert('Presença confirmada com sucesso ✨');
+
+      setConfirmationDoc({
+        uid: currentUser.uid,
+        nome: currentUser.displayName,
+        email: currentUser.email,
+        foto: currentUser.photoURL,
+        acompanhantes: [],
+      });
 
     } catch (error) {
       console.error(error);
@@ -152,6 +164,7 @@ export default function WeddingSite() {
   useEffect(() => {
     if (!user) {
       setConfirmed(false);
+      setConfirmationDoc(null);
       return;
     }
 
@@ -168,9 +181,20 @@ export default function WeddingSite() {
 
         const snapshot = await getDocs(q);
 
-        if (isActive) {
-          setConfirmed(!snapshot.empty);
+        if (!isActive) return;
+
+        if (!snapshot.empty) {
+          const docData = snapshot.docs[0];
+          setConfirmed(true);
+          setConfirmationDoc({
+            id: docData.id,
+            ...docData.data(),
+          });
+        } else {
+          setConfirmed(false);
+          setConfirmationDoc(null);
         }
+
       } catch (error) {
         console.error(error);
       }
@@ -182,6 +206,71 @@ export default function WeddingSite() {
       isActive = false;
     };
   }, [user]);
+
+  useEffect(() => {
+    if (!user) {
+      setConfirmed(false);
+      setConfirmationDoc(null);
+      return;
+    }
+
+    const ref = doc(db, 'confirmacoes', user.uid);
+
+    const unsubscribe = onSnapshot(ref, (snap) => {
+      if (snap.exists()) {
+        setConfirmed(true);
+        setConfirmationDoc({
+          id: snap.id,
+          ...snap.data(),
+        });
+      } else {
+        setConfirmed(false);
+        setConfirmationDoc(null);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [user]);
+
+  /* =========================================
+     ADICIONAR ACOMPANHANTE 
+  ========================================= */
+  async function addCompanion() {
+    if (!user || !newCompanion.trim()) return;
+
+    try {
+      const ref = doc(db, 'confirmacoes', user.uid);
+
+      await updateDoc(ref, {
+        acompanhantes: arrayUnion(newCompanion.trim()),
+      });
+
+      setNewCompanion('');
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+
+
+  /* =========================================
+       REMOVER ACOMPANHANTE 
+    ========================================= */
+
+  async function removeCompanion(name) {
+    if (!user) return;
+
+    try {
+      const ref = doc(db, 'confirmacoes', user.uid);
+
+      await updateDoc(ref, {
+        acompanhantes: arrayRemove(name),
+      });
+
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
   /* =========================================
      RESERVAR PRESENTE
@@ -338,15 +427,15 @@ export default function WeddingSite() {
   }, []);
 
   useEffect(() => {
-  const handleResize = () => {
-    setIsMobile(window.innerWidth < 640);
-  };
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
 
-  handleResize();
-  window.addEventListener('resize', handleResize);
+    handleResize();
+    window.addEventListener('resize', handleResize);
 
-  return () => window.removeEventListener('resize', handleResize);
-}, []);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   return (
     <div className="bg-[#f7f3ee] text-stone-800 overflow-x-hidden">
@@ -509,6 +598,44 @@ export default function WeddingSite() {
                   ? 'Presença já confirmada ✔'
                   : 'Confirmar presença'}
             </button>
+          )}
+          {confirmationDoc && (
+            <div className="mt-10 max-w-md mx-auto text-center">
+              <h3 className="text-xl font-serif mb-4">
+                Confirmar para...
+              </h3>
+
+              <div className="flex gap-2 mb-4">
+                <input
+                  value={newCompanion}
+                  onChange={(e) => setNewCompanion(e.target.value)}
+                  placeholder="Nome do convidado"
+                  className="border p-3 rounded w-full"
+                />
+
+                <button
+                  onClick={addCompanion}
+                  className="bg-stone-900 text-white px-4 rounded"
+                >
+                  +
+                </button>
+              </div>
+
+              <ul className="text-left space-y-1">
+                {confirmationDoc?.acompanhantes?.map((c, i) => (
+                  <li key={i} className="flex justify-between">
+                    <span>{c}</span>
+
+                    <button
+                      onClick={() => removeCompanion(c)}
+                      className="text-red-500"
+                    >
+                      remover
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
           )}
         </div>
       </section>
