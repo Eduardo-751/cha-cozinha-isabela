@@ -30,18 +30,17 @@ export default function WeddingSite() {
   const [gifts, setGifts] = useState(giftsData);
   const [currentSlide, setCurrentSlide] = useState(0);
   const itemsPerSlide = 3;
+  const [confirmed, setConfirmed] = useState(false);
 
   /* =========================================
      AUTH
   ========================================= */
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(
-      auth,
-      (currentUser) => {
-        setUser(currentUser);
-      }
-    );
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setConfirmed(false); // reseta ao trocar usuário
+    });
 
     return () => unsubscribe();
   }, []);
@@ -108,9 +107,17 @@ export default function WeddingSite() {
   async function handleConfirm(e) {
     e.preventDefault();
 
-    if (!user) {
-      alert('Faça login com Google para confirmar presença.');
-      return;
+    let currentUser = user;
+
+    if (!currentUser) {
+      try {
+        const result = await signInWithPopup(auth, provider);
+        currentUser = result.user;
+      } catch (error) {
+        console.error(error);
+        alert('Login cancelado ou falhou.');
+        return;
+      }
     }
 
     try {
@@ -118,35 +125,34 @@ export default function WeddingSite() {
 
       const confirmationsRef = collection(db, 'confirmacoes');
 
-      // agora evita duplicação por usuário real (UID)
       const q = query(
         confirmationsRef,
-        where('uid', '==', user.uid)
+        where('uid', '==', currentUser.uid)
       );
 
       const querySnapshot = await getDocs(q);
 
       if (!querySnapshot.empty) {
-        alert('Esse usuário já confirmou presença ✨');
+        alert('Você já confirmou presença ✨');
         return;
       }
 
       await addDoc(confirmationsRef, {
-        uid: user.uid,
-        nome: user.displayName,
-        email: user.email,
-        foto: user.photoURL,
+        uid: currentUser.uid,
+        nome: currentUser.displayName,
+        email: currentUser.email,
+        foto: currentUser.photoURL,
         confirmadoEm: serverTimestamp(),
       });
 
+      setConfirmed(true);
       alert('Presença confirmada com sucesso ✨');
 
-      setGuestName(''); // mantém seu input funcionando visualmente
     } catch (error) {
       console.error(error);
       alert('Erro ao confirmar presença.');
     } finally {
-      setLoading(false);
+      setLoadingRSVP(false);
     }
   }
 
@@ -375,29 +381,54 @@ export default function WeddingSite() {
             para celebrar uma nova fase.
           </p>
 
-          <div className="flex flex-wrap justify-center gap-5">
+          <div className="flex flex-col md:flex-row justify-center items-center gap-6">
 
-            <div className="bg-white/10 backdrop-blur-xl border border-white/20 px-10 py-6 rounded-[30px] min-w-[220px]">
+            {/* CARD 1 - DATA & HORÁRIO */}
+            <div className="bg-white/10 backdrop-blur-xl border border-white/20 px-10 py-8 rounded-[30px] min-w-[260px] text-center">
 
-              <p className="uppercase tracking-[0.3em] text-white/60 text-xs mb-3">
-                Data
+              <p className="uppercase tracking-[0.3em] text-white/60 text-xs mb-4">
+                Data & Horário
               </p>
 
-              <p className="text-white text-3xl font-light">
+              <p className="text-white text-3xl font-light mb-4">
                 04 Julho 2026
               </p>
-            </div>
 
-            <div className="bg-white/10 backdrop-blur-xl border border-white/20 px-10 py-6 rounded-[30px] min-w-[220px]">
-
-              <p className="uppercase tracking-[0.3em] text-white/60 text-xs mb-3">
-                Horário
-              </p>
+              <div className="w-full h-px bg-white/20 mb-4" />
 
               <p className="text-white text-3xl font-light">
                 15h00
               </p>
+
             </div>
+
+            {/* CARD 2 - LOCAL */}
+            <div className="bg-white/10 backdrop-blur-xl border border-white/20 px-10 py-8 rounded-[30px] min-w-[260px] text-center">
+
+              <p className="uppercase tracking-[0.3em] text-white/60 text-xs mb-4">
+                Local
+              </p>
+
+              <p className="text-white text-xl font-light leading-snug mb-2">
+                Salão de Festas<br />
+                Ibiti Reserva
+              </p>
+
+              <p className="text-white/60 text-sm mb-4">
+                CEP 18086-776 · Sorocaba/SP
+              </p>
+
+              <a
+                href="https://www.google.com/maps/search/?api=1&query=Ibiti+Reserva+Sorocaba"
+                target="_blank"
+                rel="noreferrer"
+                className="text-white text-sm underline opacity-80 hover:opacity-100 transition"
+              >
+                Ver no Google Maps →
+              </a>
+
+            </div>
+
           </div>
         </div>
       </section>
@@ -424,19 +455,19 @@ export default function WeddingSite() {
             Confirmação de presença
           </h2>
 
-          <p className="mb-10 text-stone-500">
-            Confirme com seu login do Google
-          </p>
-
-          <button
-            onClick={handleConfirm}
-            disabled={loadingRSVP}
-            className="bg-stone-900 text-white px-10 py-4 rounded-full"
-          >
-            {loadingRSVP
-              ? 'Confirmando...'
-              : 'Confirmar presença'}
-          </button>
+          {confirmed ? (
+            <div className="bg-green-500/20 border border-green-400 text-green-200 px-10 py-4 rounded-full flex items-center justify-center gap-2">
+              ✔ Presença confirmada
+            </div>
+          ) : (
+            <button
+              onClick={handleConfirm}
+              disabled={loadingRSVP}
+              className="bg-stone-900 text-white px-10 py-4 rounded-full"
+            >
+              {loadingRSVP ? 'Confirmando...' : 'Confirmar presença'}
+            </button>
+          )}
         </div>
       </section>
 
@@ -572,7 +603,7 @@ export default function WeddingSite() {
                         </h3>
 
                         <div className="h-[40px] mt-4">
-                          {gift.reservedBy.length > 0 && (
+                          {(gift.reservedBy || []).includes(user?.displayName) && (
                             <p className="text-stone-500 text-sm">
                               Escolhido por{' '}
                               {gift.reservedBy.join(', ')}
