@@ -13,7 +13,8 @@ import balancaImg from '../assets/balancaImg.jpg';
 import vidroImg from '../assets/potesvidrosImg.jpg';
 import organizadorGeladeiraImg from '../assets/organizadorImg.jpg';
 import cuteloImg from '../assets/cuteloImg.jpg';
-import coposImg from '../assets/copos1Img.jpg';
+import copos1Img from '../assets/copos1Img.jpg';
+import copos2Img from '../assets/copos2Img.jpg';
 import peneirasImg from '../assets/peneirasImg.jpg';
 import espremedorLimaoImg from '../assets/espremedor1Img.jpg';
 import facasImg from '../assets/facasImg.jpg';
@@ -176,7 +177,7 @@ export const giftsData = [
   {
     id: 16,
     name: 'Conjunto copos',
-    image: coposImg,
+    image: copos1Img,
     reserved: false,
     quantity: 1,
     reservedBy: '',
@@ -366,6 +367,15 @@ export const giftsData = [
     id: 37,
     name: 'Utensílios de cozinha',
     image: utensilios2Img,
+    reserved: false,
+    quantity: 1,
+    reservedBy: '',
+  },
+
+  {
+    id: 38,
+    name: 'Conjunto copos',
+    image: copos2Img,
     reserved: false,
     quantity: 1,
     reservedBy: '',

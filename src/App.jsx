@@ -1,9 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 
 import {
   collection,
-  addDoc,
-  serverTimestamp,
   query,
   where,
   getDocs,
@@ -20,17 +18,21 @@ import {
 } from 'firebase/auth';
 
 import { db, auth, provider } from './firebase';
-
 import { giftsData } from './data/gifts';
+import { updateDoc, increment, arrayUnion } from 'firebase/firestore';
+import bgImage from './assets/bg1.jpg';
 
 export default function WeddingSite() {
-  const [guestName, setGuestName] = useState('');
+
   const [loadingRSVP, setLoadingRSVP] = useState(false);
   const [user, setUser] = useState(null);
   const [gifts, setGifts] = useState(giftsData);
   const [currentSlide, setCurrentSlide] = useState(0);
   const itemsPerSlide = 3;
   const [confirmed, setConfirmed] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const [loadingGift, setLoadingGift] = useState(false);
 
   /* =========================================
      AUTH
@@ -39,7 +41,7 @@ export default function WeddingSite() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
-      setConfirmed(false); // reseta ao trocar usuário
+      setConfirmed(false);
     });
 
     return () => unsubscribe();
@@ -75,25 +77,20 @@ export default function WeddingSite() {
           reservedData[doc.id] = doc.data();
         });
 
-        const updatedGifts = giftsData.map((gift) => {
-          const firebaseGift = reservedData[gift.id];
+        setGifts(() => {
+          return giftsData.map((gift) => {
+            const firebaseGift = reservedData[gift.id];
 
-          if (!firebaseGift) return gift;
+            if (!firebaseGift) return gift;
 
-          return {
-            ...gift,
-            reservedCount:
-              firebaseGift.reservedCount || 0,
-
-            reservedBy:
-              firebaseGift.reservedBy || [],
-
-            quantity:
-              firebaseGift.quantity || 1,
-          };
+            return {
+              ...gift,
+              reservedCount: firebaseGift.reservedCount || 0,
+              reservedBy: firebaseGift.reservedBy || [],
+              quantity: firebaseGift.quantity || 1,
+            };
+          });
         });
-
-        setGifts(updatedGifts);
       }
     );
 
@@ -157,7 +154,12 @@ export default function WeddingSite() {
   }
 
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      setConfirmed(false);
+      return;
+    }
+
+    let isActive = true;
 
     async function checkConfirmation() {
       try {
@@ -170,17 +172,19 @@ export default function WeddingSite() {
 
         const snapshot = await getDocs(q);
 
-        if (!snapshot.empty) {
-          setConfirmed(true);
-        } else {
-          setConfirmed(false);
+        if (isActive) {
+          setConfirmed(!snapshot.empty);
         }
       } catch (error) {
-        console.error('Erro ao verificar confirmação:', error);
+        console.error(error);
       }
     }
 
     checkConfirmation();
+
+    return () => {
+      isActive = false;
+    };
   }, [user]);
 
   /* =========================================
@@ -188,13 +192,9 @@ export default function WeddingSite() {
   ========================================= */
 
   async function reserveGift(gift) {
-    if (!user) {
-      alert(
-        'Faça login com Google para reservar.'
-      );
+    if (!user || loadingGift) return;
 
-      return;
-    }
+    setLoadingGift(true);
 
     try {
       const person = user.displayName;
@@ -217,14 +217,9 @@ export default function WeddingSite() {
         currentData = giftSnap.data();
       }
 
-      if (
-        currentData.reservedCount >=
-        currentData.quantity
-      ) {
-        alert(
-          'Esse presente já foi reservado ✨'
-        );
-
+      if (currentData.reservedCount >= currentData.quantity) {
+        alert('Esse presente já foi reservado ✨');
+        setLoadingGift(false);
         return;
       }
 
@@ -232,32 +227,24 @@ export default function WeddingSite() {
         currentData.reservedBy?.includes(person);
 
       if (alreadyReserved) {
-        alert(
-          'Você já reservou este presente ✨'
-        );
-
+        alert('Você já reservou este presente ✨');
+        setLoadingGift(false);
         return;
       }
 
       await setDoc(giftRef, {
         quantity: currentData.quantity,
-
-        reservedCount:
-          currentData.reservedCount + 1,
-
-        reservedBy: [
-          ...(currentData.reservedBy || []),
-          person,
-        ],
+        reservedCount: currentData.reservedCount + 1,
+        reservedBy: [...(currentData.reservedBy || []), person,],
       });
 
-      alert(
-        'Presente reservado com sucesso ✨'
-      );
+      alert('Presente reservado com sucesso ✨');
+
     } catch (error) {
       console.error(error);
-
       alert('Erro ao reservar presente.');
+    } finally {
+      setLoadingGift(false);
     }
   }
 
@@ -285,10 +272,9 @@ export default function WeddingSite() {
 
       const data = giftSnap.data();
 
-      const updatedNames =
-        data.reservedBy.filter(
-          (name) => name !== person
-        );
+      const updatedNames = (data.reservedBy || []).filter(
+        (name) => name !== person
+      );
 
       await setDoc(giftRef, {
         ...data,
@@ -327,23 +313,32 @@ export default function WeddingSite() {
     );
   };
 
-  const visibleGifts = gifts.slice(
-    currentSlide * itemsPerSlide,
-    currentSlide * itemsPerSlide +
-    itemsPerSlide
-  );
+  const sortedGifts = useMemo(() => {
+    return [...gifts].sort((a, b) =>
+      a.name.localeCompare(b.name, 'pt-BR')
+    );
+  }, [gifts]);
+
+  const groupedGifts = useMemo(() => {
+    const groups = [];
+
+    for (let i = 0; i < sortedGifts.length; i += itemsPerSlide) {
+      groups.push(sortedGifts.slice(i, i + itemsPerSlide));
+    }
+
+    return groups;
+  }, [sortedGifts]);
 
   return (
-    <div className="bg-[#f7f3ee] text-stone-800 overflow-hidden">
+    <div className="bg-[#f7f3ee] text-stone-800 overflow-x-hidden">
       {/* HERO */}
 
       <section className="relative min-h-screen flex items-center justify-center">
 
         <div
-          className="absolute inset-0 bg-cover bg-center scale-105"
+          className="absolute inset-0 bg-cover bg-center scale-100"
           style={{
-            backgroundImage:
-              "url('https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=2000&auto=format&fit=crop')",
+            backgroundImage: `url(${bgImage})`,
           }}
         />
 
@@ -399,11 +394,11 @@ export default function WeddingSite() {
             Chá de Cozinha
           </p>
 
-          <h1 className="text-white text-6xl md:text-8xl font-serif leading-none mb-10">
+          <h1 className="text-white text-4xl sm:text-5xl md:text-8xl font-serif leading-none mb-10">
             Isabela
           </h1>
 
-          <p className="text-white/80 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed mb-14">
+          <p className="text-white/80 text-base sm:text-lg md:text-xl max-w-2xl mx-auto leading-relaxed mb-14">
             Um momento especial preparado com carinho
             para celebrar uma nova fase.
           </p>
@@ -462,7 +457,7 @@ export default function WeddingSite() {
 
       {/* RSVP */}
 
-      <section className="py-32 px-6">
+      <section className="py-32 px-6 ">
         <div className="max-w-3xl mx-auto text-center">
 
           <p className="uppercase tracking-[0.3em] text-stone-400 text-sm mb-4">
@@ -521,34 +516,53 @@ export default function WeddingSite() {
           </div>
           {/* CAROUSEL */}
 
-          <div className="relative">
+          <div
+            className="relative"
+            onTouchStart={(e) => {
+              setStartX(e.touches[0].clientX);
+              setIsDragging(true);
+            }}
+            onTouchEnd={(e) => {
+              if (!isDragging) return;
+
+              const endX = e.changedTouches[0].clientX;
+              const diff = startX - endX;
+
+              if (Math.abs(diff) > 50) {
+                if (diff > 0) {
+                  nextSlide(); // swipe esquerda
+                } else {
+                  prevSlide(); // swipe direita
+                }
+              }
+
+              setIsDragging(false);
+            }}
+            onMouseDown={(e) => {
+              setStartX(e.clientX);
+              setIsDragging(true);
+            }}
+            onMouseUp={(e) => {
+              if (!isDragging) return;
+
+              const diff = startX - e.clientX;
+
+              if (Math.abs(diff) > 50) {
+                if (diff > 0) nextSlide();
+                else prevSlide();
+              }
+
+              setIsDragging(false);
+            }}
+          >
 
             {/* BOTÃO ESQUERDA */}
 
             <button
               onClick={prevSlide}
-              className="
-      absolute
-      left-[-20px]
-      top-1/2
-      -translate-y-1/2
-      z-20
-      w-14
-      h-14
-      rounded-full
-      bg-white/90
-      backdrop-blur-xl
-      border
-      border-stone-200
-      shadow-lg
-      flex
-      items-center
-      justify-center
-      hover:bg-stone-900
-      hover:text-white
-      transition
-      duration-300
-    "
+              className="absolute left-2 sm:left-[-20px] top-1/2 -translate-y-1/2 z-20 w-14 h-14 rounded-full bg-white/90
+                         backdrop-blur-xl border border-stone-200 shadow-lg flex items-center justify-center hover:bg-stone-900
+                         hover:text-white transition duration-300"
             >
               ←
             </button>
@@ -557,121 +571,107 @@ export default function WeddingSite() {
 
             <button
               onClick={nextSlide}
-              className="
-      absolute
-      right-[-20px]
-      top-1/2
-      -translate-y-1/2
-      z-20
-      w-14
-      h-14
-      rounded-full
-      bg-white/90
-      backdrop-blur-xl
-      border
-      border-stone-200
-      shadow-lg
-      flex
-      items-center
-      justify-center
-      hover:bg-stone-900
-      hover:text-white
-      transition
-      duration-300
-    "
+              className=" absolute right-2 sm:right-[-20px] top-1/2 -translate-y-1/2 z-20 w-14 h-14 rounded-full bg-white/90
+                          backdrop-blur-xl border border-stone-200 shadow-lg flex items-center justify-center hover:bg-stone-900 
+                          hover:text-white transitio duration-300"
             >
               →
             </button>
 
             {/* GRID */}
+            {/* CAROUSEL */}
+            <div className="overflow-hidden">
+              <div
+                className="flex transition-transform duration-500 ease-out"
+                style={{
+                  transform: `translateX(-${currentSlide * 100}%)`,
+                }}
+              >
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
-
-              {visibleGifts.map((gift) => {
-
-                const userReserved =
-                  gift.reservedBy?.includes(
-                    user?.displayName
-                  );
-
-                const unavailable =
-                  gift.reservedCount >=
-                  gift.quantity;
-
-                return (
+                {groupedGifts.map((group, index) => (
                   <div
-                    key={gift.id}
-                    className="group"
+                    key={index}
+                    className="w-full flex-shrink-0"
                   >
-                    <div className="overflow-hidden rounded-[36px] mb-6">
 
-                      <img
-                        src={gift.image}
-                        alt={gift.name}
-                        className="w-full h-[420px] object-cover group-hover:scale-105 transition duration-700"
-                      />
+                    {/* GRID DO SLIDE */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 px-4">
+
+                      {group.map((gift) => {
+                        const userReserved =
+                          gift.reservedBy?.includes(user?.displayName);
+
+                        const unavailable =
+                          gift.reservedCount >= gift.quantity;
+
+                        return (
+                          <div key={gift.id} className="group w-full">
+
+                            {/* CARD */}
+                            <div className="overflow-hidden rounded-[36px] mb-6">
+                              <img
+                                src={gift.image}
+                                alt={gift.name}
+                                className="w-full h-[420px] object-cover group-hover:scale-105 transition duration-700"
+                              />
+                            </div>
+
+                            <div className="flex flex-col justify-between min-h-[220px]">
+
+                              <div>
+                                <h3 className="text-3xl font-serif leading-tight min-h-[76px] flex items-start">
+                                  {gift.name}
+                                </h3>
+
+                                <div className="h-[40px] mt-4">
+                                  {(gift.reservedBy || []).includes(user?.displayName) && (
+                                    <p className="text-stone-500 text-sm">
+                                      Escolhido por {gift.reservedBy.join(', ')}
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+
+                              <div className="space-y-3 pt-4">
+
+                                <button
+                                  onClick={() => reserveGift(gift)}
+                                  disabled={unavailable}
+                                  className={`w-full rounded-full py-4 transition duration-300 ${unavailable
+                                    ? 'bg-stone-200 text-stone-500 cursor-not-allowed'
+                                    : 'bg-stone-900 text-white hover:opacity-90'
+                                    }`}
+                                >
+                                  {unavailable
+                                    ? 'Presente reservado'
+                                    : 'Quero presentear'}
+                                </button>
+
+                                <div className="h-[56px]">
+                                  {userReserved ? (
+                                    <button
+                                      onClick={() => cancelReservation(gift)}
+                                      className="w-full border border-stone-300 text-stone-700 rounded-full py-4 hover:bg-stone-100 transition"
+                                    >
+                                      Cancelar reserva
+                                    </button>
+                                  ) : (
+                                    <div className="w-full h-full" />
+                                  )}
+                                </div>
+
+                              </div>
+                            </div>
+
+                          </div>
+                        );
+                      })}
+
                     </div>
-
-                    <div className="flex flex-col justify-between min-h-[220px]">
-
-                      <div>
-
-                        <h3 className="
-      text-3xl
-      font-serif
-      leading-tight
-      min-h-[76px]
-      flex
-      items-start
-    ">
-                          {gift.name}
-                        </h3>
-
-                        <div className="h-[40px] mt-4">
-                          {(gift.reservedBy || []).includes(user?.displayName) && (
-                            <p className="text-stone-500 text-sm">
-                              Escolhido por{' '}
-                              {gift.reservedBy.join(', ')}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="space-y-3 pt-4">
-
-                        <button
-                          onClick={() =>
-                            reserveGift(gift)
-                          }
-                          disabled={unavailable}
-                          className={`w-full rounded-full py-4 transition duration-300 ${unavailable
-                            ? 'bg-stone-200 text-stone-500 cursor-not-allowed'
-                            : 'bg-stone-900 text-white hover:opacity-90'
-                            }`}
-                        >
-                          {unavailable
-                            ? 'Presente reservado'
-                            : 'Quero presentear'}
-                        </button>
-
-                        <div className="h-[56px]">
-                          {userReserved ? (
-                            <button
-                              onClick={() => cancelReservation(gift)}
-                              className="w-full border border-stone-300 text-stone-700 rounded-full py-4 hover:bg-stone-100 transition"
-                            >
-                              Cancelar reserva
-                            </button>
-                          ) : (
-                            <div className="w-full h-full" />
-                          )}
-                        </div>
-                      </div>
-                    </div>
-
                   </div>
-                );
-              })}
+                ))}
+
+              </div>
             </div>
           </div>
         </div>
