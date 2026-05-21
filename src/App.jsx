@@ -156,6 +156,33 @@ export default function WeddingSite() {
     }
   }
 
+  useEffect(() => {
+    if (!user) return;
+
+    async function checkConfirmation() {
+      try {
+        const confirmationsRef = collection(db, 'confirmacoes');
+
+        const q = query(
+          confirmationsRef,
+          where('uid', '==', user.uid)
+        );
+
+        const snapshot = await getDocs(q);
+
+        if (!snapshot.empty) {
+          setConfirmed(true);
+        } else {
+          setConfirmed(false);
+        }
+      } catch (error) {
+        console.error('Erro ao verificar confirmação:', error);
+      }
+    }
+
+    checkConfirmation();
+  }, [user]);
+
   /* =========================================
      RESERVAR PRESENTE
   ========================================= */
@@ -384,7 +411,7 @@ export default function WeddingSite() {
           <div className="flex flex-col md:flex-row justify-center items-center gap-6">
 
             {/* CARD 1 - DATA & HORÁRIO */}
-            <div className="bg-white/10 backdrop-blur-xl border border-white/20 px-10 py-8 rounded-[30px] min-w-[260px] text-center">
+            <div className="bg-white/10 backdrop-blur-xl border border-white/20 px-10 py-8 rounded-[30px] w-[300px] h-[220px] text-center">
 
               <p className="uppercase tracking-[0.3em] text-white/60 text-xs mb-4">
                 Data & Horário
@@ -403,7 +430,7 @@ export default function WeddingSite() {
             </div>
 
             {/* CARD 2 - LOCAL */}
-            <div className="bg-white/10 backdrop-blur-xl border border-white/20 px-10 py-8 rounded-[30px] min-w-[260px] text-center">
+            <div className="bg-white/10 backdrop-blur-xl border border-white/20 px-10 py-8 rounded-[30px] w-[300px] h-[220px] text-center">
 
               <p className="uppercase tracking-[0.3em] text-white/60 text-xs mb-4">
                 Local
@@ -451,21 +478,22 @@ export default function WeddingSite() {
             inesquecível ✨
           </p>
 
-          <h2 className="text-5xl font-serif mb-6">
-            Confirmação de presença
-          </h2>
-
           {confirmed ? (
-            <div className="bg-green-500/20 border border-green-400 text-green-200 px-10 py-4 rounded-full flex items-center justify-center gap-2">
-              ✔ Presença confirmada
-            </div>
+            <button className="bg-stone-900 text-white px-10 py-4 rounded-full disabled:opacity-60 disabled:cursor-not-allowed w-[260px]">
+              <span className="text-green-300 text-xl">✔</span>
+              <span>Presença confirmada</span>
+            </button>
           ) : (
             <button
               onClick={handleConfirm}
-              disabled={loadingRSVP}
-              className="bg-stone-900 text-white px-10 py-4 rounded-full"
+              disabled={loadingRSVP || confirmed}
+              className="bg-stone-900 text-white px-10 py-4 rounded-full disabled:opacity-60 disabled:cursor-not-allowed w-[260px]"
             >
-              {loadingRSVP ? 'Confirmando...' : 'Confirmar presença'}
+              {loadingRSVP
+                ? 'Confirmando...'
+                : confirmed
+                  ? 'Presença já confirmada ✔'
+                  : 'Confirmar presença'}
             </button>
           )}
         </div>
@@ -488,10 +516,7 @@ export default function WeddingSite() {
             </h2>
 
             <p className="text-stone-500 max-w-2xl mx-auto text-lg">
-              Sua presença já é um presente, mas
-              deixamos algumas sugestões para quem
-              quiser participar desse momento com
-              carinho ✨
+              Será um prazer compartilhar esse momento com você, preparamos algumas sugestões com carinho para esta data.
             </p>
           </div>
           {/* CAROUSEL */}
