@@ -28,7 +28,7 @@ export default function WeddingSite() {
   const [user, setUser] = useState(null);
   const [gifts, setGifts] = useState(giftsData);
   const [currentSlide, setCurrentSlide] = useState(0);
-  const itemsPerSlide = 3;
+  const [itemsPerSlide, setItemsPerSlide] = useState(3);
   const [confirmed, setConfirmed] = useState(false);
   const [startX, setStartX] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
@@ -328,6 +328,23 @@ export default function WeddingSite() {
 
     return groups;
   }, [sortedGifts]);
+
+  useEffect(() => {
+    function handleResize() {
+      if (window.innerWidth < 640) {
+        setItemsPerSlide(1);
+      } else if (window.innerWidth < 1024) {
+        setItemsPerSlide(2);
+      } else {
+        setItemsPerSlide(3);
+      }
+    }
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   return (
     <div className="bg-[#f7f3ee] text-stone-800 overflow-x-hidden">
