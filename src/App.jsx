@@ -598,16 +598,18 @@ export default function WeddingSite() {
                             : 'Quero presentear'}
                         </button>
 
-                        {userReserved && (
-                          <button
-                            onClick={() =>
-                              cancelReservation(gift)
-                            }
-                            className="w-full border border-stone-300 text-stone-700 rounded-full py-4 hover:bg-stone-100 transition"
-                          >
-                            Cancelar reserva
-                          </button>
-                        )}
+                        <div className="h-[56px]">
+                          {userReserved ? (
+                            <button
+                              onClick={() => cancelReservation(gift)}
+                              className="w-full border border-stone-300 text-stone-700 rounded-full py-4 hover:bg-stone-100 transition"
+                            >
+                              Cancelar reserva
+                            </button>
+                          ) : (
+                            <div className="w-full h-full" />
+                          )}
+                        </div>
                       </div>
                     </div>
 
