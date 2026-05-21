@@ -1,16 +1,4 @@
-import { useState, useEffect } from 'react';
-import { giftsData } from './data/gifts';
-import {
-  signInWithPopup,
-  signOut,
-  onAuthStateChanged,
-} from 'firebase/auth';
-
-import {
-  auth,
-  provider,
-  db,
-} from './firebase';
+import { useEffect, useState } from 'react';
 
 import {
   collection,
@@ -25,12 +13,62 @@ import {
   onSnapshot,
 } from 'firebase/firestore';
 
+import {
+  signInWithPopup,
+  signOut,
+  onAuthStateChanged,
+} from 'firebase/auth';
+
+import { db, auth, provider } from './firebase';
+
+import { giftsData } from './data/gifts';
+
 export default function WeddingSite() {
-  const [user, setUser] = useState(null);
   const [guestName, setGuestName] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const [user, setUser] = useState(null);
+
   const [gifts, setGifts] = useState(giftsData);
+
   const [currentSlide, setCurrentSlide] = useState(0);
+
+  const itemsPerSlide = 3;
+
+  /* =========================================
+     AUTH
+  ========================================= */
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      (currentUser) => {
+        setUser(currentUser);
+      }
+    );
+
+    return () => unsubscribe();
+  }, []);
+
+  async function loginGoogle() {
+    try {
+      await signInWithPopup(auth, provider);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  async function logout() {
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  /* =========================================
+     PRESENTES FIREBASE
+  ========================================= */
 
   useEffect(() => {
     const unsubscribe = onSnapshot(
@@ -49,24 +87,18 @@ export default function WeddingSite() {
 
           return {
             ...gift,
-            reservedCount: firebaseGift.reservedCount || 0,
-            reservedBy: firebaseGift.reservedBy || [],
-            quantity: firebaseGift.quantity || 1,
+            reservedCount:
+              firebaseGift.reservedCount || 0,
+
+            reservedBy:
+              firebaseGift.reservedBy || [],
+
+            quantity:
+              firebaseGift.quantity || 1,
           };
         });
 
         setGifts(updatedGifts);
-      }
-    );
-
-    return () => unsubscribe();
-  }, []);
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(
-      auth,
-      (currentUser) => {
-        setUser(currentUser);
       }
     );
 
@@ -90,7 +122,10 @@ export default function WeddingSite() {
     try {
       setLoading(true);
 
-      const confirmationsRef = collection(db, 'confirmacoes');
+      const confirmationsRef = collection(
+        db,
+        'confirmacoes'
+      );
 
       const q = query(
         confirmationsRef,
@@ -100,7 +135,10 @@ export default function WeddingSite() {
       const querySnapshot = await getDocs(q);
 
       if (!querySnapshot.empty) {
-        alert('Esse nome já confirmou presença ✨');
+        alert(
+          'Esse nome já confirmou presença ✨'
+        );
+
         setLoading(false);
         return;
       }
@@ -110,7 +148,9 @@ export default function WeddingSite() {
         confirmadoEm: serverTimestamp(),
       });
 
-      alert('Presença confirmada com sucesso ✨');
+      alert(
+        'Presença confirmada com sucesso ✨'
+      );
 
       setGuestName('');
     } catch (error) {
@@ -126,185 +166,194 @@ export default function WeddingSite() {
   ========================================= */
 
   async function reserveGift(gift) {
-  if (!user) {
-    alert('Faça login com Google para reservar.');
-    return;
-  }
-
-  try {
-    const person = user.displayName;
-
-    const giftRef = doc(
-      db,
-      'presentes',
-      String(gift.id)
-    );
-
-    const giftSnap = await getDoc(giftRef);
-
-    let currentData = {
-      reservedCount: 0,
-      reservedBy: [],
-      quantity: gift.quantity,
-    };
-
-    if (giftSnap.exists()) {
-      currentData = giftSnap.data();
-    }
-
-    // verifica limite
-    if (
-      currentData.reservedCount >= currentData.quantity
-    ) {
-      alert('Esse presente já foi reservado ✨');
-      return;
-    }
-
-    // verifica se já reservou
-    const alreadyReserved =
-      currentData.reservedBy?.includes(person);
-
-    if (alreadyReserved) {
-      alert('Você já reservou este presente ✨');
-      return;
-    }
-
-    await setDoc(giftRef, {
-      quantity: currentData.quantity,
-      reservedCount:
-        currentData.reservedCount + 1,
-      reservedBy: [
-        ...(currentData.reservedBy || []),
-        person,
-      ],
-    });
-
-    alert('Presente reservado com sucesso ✨');
-  } catch (error) {
-    console.error(error);
-    alert('Erro ao reservar presente.');
-  }
-}
-
-/* =========================================
-     Cancelar Reserva
-  ========================================= */
-
-async function cancelReservation(gift) {
-  if (!user) return;
-
-  try {
-    const person = user.displayName;
-
-    const giftRef = doc(
-      db,
-      'presentes',
-      String(gift.id)
-    );
-
-    const giftSnap = await getDoc(giftRef);
-
-    if (!giftSnap.exists()) {
-      return;
-    }
-
-    const data = giftSnap.data();
-
-    const updatedNames =
-      data.reservedBy.filter(
-        (name) => name !== person
+    if (!user) {
+      alert(
+        'Faça login com Google para reservar.'
       );
 
-    await setDoc(giftRef, {
-      ...data,
-      reservedCount: Math.max(
-        data.reservedCount - 1,
-        0
-      ),
-      reservedBy: updatedNames,
-    });
+      return;
+    }
 
-    alert('Reserva cancelada ✨');
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-  /* =========================================
-     Login e Logout Google
-  ========================================= */
-
-  async function loginGoogle() {
     try {
-      await signInWithPopup(auth, provider);
+      const person = user.displayName;
+
+      const giftRef = doc(
+        db,
+        'presentes',
+        String(gift.id)
+      );
+
+      const giftSnap = await getDoc(giftRef);
+
+      let currentData = {
+        reservedCount: 0,
+        reservedBy: [],
+        quantity: gift.quantity,
+      };
+
+      if (giftSnap.exists()) {
+        currentData = giftSnap.data();
+      }
+
+      if (
+        currentData.reservedCount >=
+        currentData.quantity
+      ) {
+        alert(
+          'Esse presente já foi reservado ✨'
+        );
+
+        return;
+      }
+
+      const alreadyReserved =
+        currentData.reservedBy?.includes(person);
+
+      if (alreadyReserved) {
+        alert(
+          'Você já reservou este presente ✨'
+        );
+
+        return;
+      }
+
+      await setDoc(giftRef, {
+        quantity: currentData.quantity,
+
+        reservedCount:
+          currentData.reservedCount + 1,
+
+        reservedBy: [
+          ...(currentData.reservedBy || []),
+          person,
+        ],
+      });
+
+      alert(
+        'Presente reservado com sucesso ✨'
+      );
     } catch (error) {
       console.error(error);
-      alert('Erro ao fazer login.');
+
+      alert('Erro ao reservar presente.');
     }
   }
 
-  async function logout() {
+  /* =========================================
+     CANCELAR RESERVA
+  ========================================= */
+
+  async function cancelReservation(gift) {
+    if (!user) return;
+
     try {
-      await signOut(auth);
+      const person = user.displayName;
+
+      const giftRef = doc(
+        db,
+        'presentes',
+        String(gift.id)
+      );
+
+      const giftSnap = await getDoc(giftRef);
+
+      if (!giftSnap.exists()) {
+        return;
+      }
+
+      const data = giftSnap.data();
+
+      const updatedNames =
+        data.reservedBy.filter(
+          (name) => name !== person
+        );
+
+      await setDoc(giftRef, {
+        ...data,
+
+        reservedCount: Math.max(
+          data.reservedCount - 1,
+          0
+        ),
+
+        reservedBy: updatedNames,
+      });
+
+      alert('Reserva cancelada ✨');
     } catch (error) {
       console.error(error);
     }
   }
 
   /* =========================================
-     CARROSSEL
+     CAROUSEL
   ========================================= */
 
-  const itemsPerSlide = 3;
+  const totalSlides = Math.ceil(
+    gifts.length / itemsPerSlide
+  );
 
   const nextSlide = () => {
-    if (currentSlide + itemsPerSlide < gifts.length) {
-      setCurrentSlide(currentSlide + itemsPerSlide);
-    }
+    setCurrentSlide((prev) =>
+      prev + 1 >= totalSlides ? 0 : prev + 1
+    );
   };
 
   const prevSlide = () => {
-    if (currentSlide - itemsPerSlide >= 0) {
-      setCurrentSlide(currentSlide - itemsPerSlide);
-    }
+    setCurrentSlide((prev) =>
+      prev - 1 < 0 ? totalSlides - 1 : prev - 1
+    );
   };
 
+  const visibleGifts = gifts.slice(
+    currentSlide * itemsPerSlide,
+    currentSlide * itemsPerSlide +
+    itemsPerSlide
+  );
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#fdfcfb] to-[#f5efe8] text-stone-800 font-[sans-serif]">
+    <div className="bg-[#f7f3ee] text-stone-800 overflow-hidden">
       {/* HERO */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden px-6">
-        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1522673607200-164d1b6ce486?q=80&w=1600&auto=format&fit=crop')] bg-cover bg-center scale-105" />
 
-        <div className="absolute inset-0 bg-white/80 backdrop-blur-[2px]" />
+      <section className="relative min-h-screen flex items-center justify-center">
 
-        <div className="relative z-10 max-w-5xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 bg-white/80 backdrop-blur px-5 py-2 rounded-full border border-stone-200 shadow-sm mb-8">
-            <span className="text-xs tracking-[0.35em] uppercase text-stone-600">
-              Chá de Cozinha
-            </span>
-          </div>
-          <div className="flex justify-center mb-8">
+        <div
+          className="absolute inset-0 bg-cover bg-center scale-105"
+          style={{
+            backgroundImage:
+              "url('https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=2000&auto=format&fit=crop')",
+          }}
+        />
+
+        <div className="absolute inset-0 bg-black/40" />
+
+        {/* NAV */}
+
+        <div className="absolute top-0 left-0 w-full z-30 px-8 py-6">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
+
             {user ? (
-              <div className="flex items-center gap-4 bg-white/90 backdrop-blur px-5 py-3 rounded-full shadow-md border border-stone-200">
+              <div className="flex items-center gap-3 bg-white/10 backdrop-blur-xl border border-white/20 px-3 py-2 rounded-full">
+
                 <img
                   src={user.photoURL}
                   alt={user.displayName}
-                  className="w-10 h-10 rounded-full"
+                  className="w-10 h-10 rounded-full object-cover"
                 />
 
-                <div className="text-left">
-                  <p className="text-sm text-stone-500">
-                    Conectado como
+                <div className="hidden md:block">
+                  <p className="text-white text-sm">
+                    {user.displayName}
                   </p>
 
-                  <p className="text-stone-900 font-medium">
-                    {user.displayName}
+                  <p className="text-white/60 text-xs">
+                    conectado
                   </p>
                 </div>
 
                 <button
                   onClick={logout}
-                  className="bg-stone-900 text-white px-4 py-2 rounded-xl hover:opacity-90 transition"
+                  className="text-white/70 hover:text-white text-sm transition"
                 >
                   Sair
                 </button>
@@ -312,40 +361,51 @@ async function cancelReservation(gift) {
             ) : (
               <button
                 onClick={loginGoogle}
-                className="bg-stone-900 text-white px-6 py-3 rounded-2xl shadow-md hover:scale-[1.02] transition"
+                className="bg-white text-stone-900 px-6 py-3 rounded-full hover:scale-[1.02] transition duration-300 shadow-2xl"
               >
                 Entrar com Google
               </button>
             )}
           </div>
-          <h1 className="text-5xl md:text-8xl font-extralight tracking-tight text-stone-900 leading-none mb-8">
-            Isabela de
-            <br />
-            Lurdes Lima Manoel
-          </h1>
+        </div>
 
-          <p className="max-w-2xl mx-auto text-lg md:text-2xl text-stone-700 leading-relaxed mb-10">
-            Um momento especial preparado com carinho para celebrar uma nova fase.
-            Sua presença tornará esse dia ainda mais inesquecível ✨
+        {/* HERO CONTENT */}
+
+        <div className="relative z-20 text-center px-6">
+
+          <p className="uppercase tracking-[0.5em] text-white/70 text-sm mb-8">
+            Chá de Cozinha
           </p>
 
-          <div className="flex flex-wrap items-center justify-center gap-4">
-            <div className="bg-white rounded-3xl px-8 py-5 shadow-[0_15px_60px_rgba(0,0,0,0.06)] border border-stone-100 min-w-[220px]">
-              <p className="text-sm uppercase tracking-[0.3em] text-stone-500 mb-2">
+          <h1 className="text-white text-6xl md:text-8xl font-serif leading-none mb-10">
+            Isabela
+          </h1>
+
+          <p className="text-white/80 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed mb-14">
+            Um momento especial preparado com carinho
+            para celebrar uma nova fase.
+          </p>
+
+          <div className="flex flex-wrap justify-center gap-5">
+
+            <div className="bg-white/10 backdrop-blur-xl border border-white/20 px-10 py-6 rounded-[30px] min-w-[220px]">
+
+              <p className="uppercase tracking-[0.3em] text-white/60 text-xs mb-3">
                 Data
               </p>
 
-              <p className="text-2xl font-light text-stone-900">
+              <p className="text-white text-3xl font-light">
                 04 Julho 2026
               </p>
             </div>
 
-            <div className="bg-white rounded-3xl px-8 py-5 shadow-[0_15px_60px_rgba(0,0,0,0.06)] border border-stone-100 min-w-[220px]">
-              <p className="text-sm uppercase tracking-[0.3em] text-stone-500 mb-2">
+            <div className="bg-white/10 backdrop-blur-xl border border-white/20 px-10 py-6 rounded-[30px] min-w-[220px]">
+
+              <p className="uppercase tracking-[0.3em] text-white/60 text-xs mb-3">
                 Horário
               </p>
 
-              <p className="text-2xl font-light text-stone-900">
+              <p className="text-white text-3xl font-light">
                 15h00
               </p>
             </div>
@@ -353,183 +413,241 @@ async function cancelReservation(gift) {
         </div>
       </section>
 
-      {/* INFO + RSVP */}
-      <section className="max-w-6xl mx-auto px-6 -mt-24 relative z-20 grid md:grid-cols-2 gap-8">
-        {/* INFO */}
-        <div className="bg-white/90 backdrop-blur rounded-[36px] shadow-[0_15px_60px_rgba(0,0,0,0.06)] p-10 border border-stone-100">
-          <h2 className="text-4xl font-extralight mb-8 text-stone-900">
-            Informações
+      {/* RSVP */}
+
+      <section className="py-32 px-6">
+        <div className="max-w-3xl mx-auto text-center">
+
+          <p className="uppercase tracking-[0.3em] text-stone-400 text-sm mb-4">
+            Confirmação
+          </p>
+
+          <h2 className="text-5xl md:text-6xl font-serif mb-8">
+            Esperamos você
           </h2>
 
-          <div className="space-y-4 text-stone-600">
-            <div>
-              <p className="font-medium text-stone-900">Data</p>
-              <p>04 de Julho de 2026</p>
-            </div>
+          <p className="text-stone-500 text-lg leading-relaxed mb-14">
+            Sua presença tornará esse dia ainda mais
+            inesquecível ✨
+          </p>
 
-            <div>
-              <p className="font-medium text-stone-900">Horário</p>
-              <p>15h00</p>
-            </div>
-
-            <div>
-              <p className="font-medium text-stone-900">Local</p>
-              <p>Rua Padre Livio Emilio Calliari</p>
-            </div>
-          </div>
-        </div>
-
-        {/* CONFIRMAÇÃO */}
-        <div className="bg-white/90 backdrop-blur rounded-[36px] shadow-[0_15px_60px_rgba(0,0,0,0.06)] p-10 border border-stone-100">
-          <h2 className="text-4xl font-extralight mb-8 text-stone-900">
-            Confirmação de Presença
-          </h2>
-
-          <form className="space-y-4" onSubmit={handleConfirm}>
+          <form
+            onSubmit={handleConfirm}
+            className="space-y-5"
+          >
             <input
               type="text"
               value={guestName}
-              onChange={(e) => setGuestName(e.target.value)}
+              onChange={(e) =>
+                setGuestName(e.target.value)
+              }
               placeholder="Digite seu nome completo"
-              className="w-full border border-stone-200 rounded-2xl px-4 py-3 outline-none focus:ring-2 focus:ring-stone-300"
+              className="w-full bg-white border border-stone-200 rounded-full px-8 py-5 text-center text-lg outline-none focus:ring-2 focus:ring-stone-300 shadow-sm"
             />
 
             <button
               type="submit"
               disabled={loading}
-              className={`w-full rounded-2xl py-4 text-lg transition duration-300 shadow-md ${loading
-                ? 'bg-stone-400 text-white cursor-not-allowed'
-                : 'bg-stone-900 text-white hover:scale-[1.01]'
-                }`}
+              className="bg-stone-900 text-white px-10 py-5 rounded-full text-lg hover:scale-[1.02] transition duration-300"
             >
-              {loading ? 'Confirmando...' : 'Confirmar presença'}
+              {loading
+                ? 'Confirmando...'
+                : 'Confirmar presença'}
             </button>
           </form>
         </div>
       </section>
 
       {/* PRESENTES */}
-      <section className="bg-gradient-to-b from-[#f5f1eb] to-[#fcfaf7] py-28 px-6 mt-24">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-14">
-            <p className="uppercase tracking-[0.3em] text-sm text-stone-500 mb-3">
-              Sugestões de Presentes
+
+      <section className="py-32 px-6 bg-white">
+
+        <div className="max-w-7xl mx-auto">
+
+          <div className="text-center mb-20">
+
+            <p className="uppercase tracking-[0.3em] text-stone-400 text-sm mb-4">
+              Lista de Presentes
             </p>
 
-            <h2 className="text-4xl font-light mb-4">
-              Sugestões para o Chá de Cozinha
+            <h2 className="text-5xl md:text-6xl font-serif mb-8">
+              Sugestões Especiais
             </h2>
 
-            <p className="text-stone-600 max-w-2xl mx-auto">
-              Sua presença já vai deixar esse dia ainda mais especial,
-              mas também deixei algumas sugestões de presentes para quem quiser
-              participar desse momento com carinho.
+            <p className="text-stone-500 max-w-2xl mx-auto text-lg">
+              Sua presença já é um presente, mas
+              deixamos algumas sugestões para quem
+              quiser participar desse momento com
+              carinho ✨
             </p>
           </div>
+          {/* CAROUSEL */}
 
-          {/* CARROSSEL */}
           <div className="relative">
-            {/* ESQUERDA */}
+
+            {/* BOTÃO ESQUERDA */}
+
             <button
               onClick={prevSlide}
-              disabled={currentSlide === 0}
-              className={`absolute left-[-20px] top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full shadow-lg transition ${currentSlide === 0
-                ? 'bg-stone-200 text-stone-400 cursor-not-allowed'
-                : 'bg-white text-stone-900 hover:scale-105'
-                }`}
+              className="
+      absolute
+      left-[-20px]
+      top-1/2
+      -translate-y-1/2
+      z-20
+      w-14
+      h-14
+      rounded-full
+      bg-white/90
+      backdrop-blur-xl
+      border
+      border-stone-200
+      shadow-lg
+      flex
+      items-center
+      justify-center
+      hover:bg-stone-900
+      hover:text-white
+      transition
+      duration-300
+    "
             >
               ←
             </button>
 
-            {/* DIREITA */}
+            {/* BOTÃO DIREITA */}
+
             <button
               onClick={nextSlide}
-              disabled={currentSlide + itemsPerSlide >= gifts.length}
-              className={`absolute right-[-20px] top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full shadow-lg transition ${currentSlide + itemsPerSlide >= gifts.length
-                ? 'bg-stone-200 text-stone-400 cursor-not-allowed'
-                : 'bg-white text-stone-900 hover:scale-105'
-                }`}
+              className="
+      absolute
+      right-[-20px]
+      top-1/2
+      -translate-y-1/2
+      z-20
+      w-14
+      h-14
+      rounded-full
+      bg-white/90
+      backdrop-blur-xl
+      border
+      border-stone-200
+      shadow-lg
+      flex
+      items-center
+      justify-center
+      hover:bg-stone-900
+      hover:text-white
+      transition
+      duration-300
+    "
             >
               →
             </button>
 
-            {/* SLIDES */}
-            <div className="overflow-hidden">
-              <div
-                className="flex gap-8 transition-transform duration-500"
-                style={{
-                  transform: `translateX(-${(currentSlide / itemsPerSlide) * 100
-                    }%)`,
-                }}
-              >
-                {gifts.map((gift) => (
+            {/* GRID */}
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
+
+              {visibleGifts.map((gift) => {
+
+                const userReserved =
+                  gift.reservedBy?.includes(
+                    user?.displayName
+                  );
+
+                const unavailable =
+                  gift.reservedCount >=
+                  gift.quantity;
+
+                return (
                   <div
                     key={gift.id}
-                    className="min-w-[100%] md:min-w-[calc(50%-16px)] lg:min-w-[calc(33.333%-22px)] bg-white border border-stone-100 rounded-[36px] overflow-hidden hover:-translate-y-1 hover:shadow-[0_20px_50px_rgba(0,0,0,0.08)] transition duration-300"
+                    className="group"
                   >
-                    <img
-                      src={gift.image}
-                      alt={gift.name}
-                      className="h-64 w-full object-cover"
-                    />
+                    <div className="overflow-hidden rounded-[36px] mb-6">
 
-                    <div className="p-7 flex flex-col h-[260px]">
-                      <div className="flex items-start justify-between gap-3 mb-4">
-                        <h3 className="text-2xl font-light text-stone-900 min-h-[64px] leading-tight">
+                      <img
+                        src={gift.image}
+                        alt={gift.name}
+                        className="w-full h-[420px] object-cover group-hover:scale-105 transition duration-700"
+                      />
+                    </div>
+
+                    <div className="flex flex-col justify-between min-h-[220px]">
+
+                      <div>
+
+                        <h3 className="
+      text-3xl
+      font-serif
+      leading-tight
+      min-h-[76px]
+      flex
+      items-start
+    ">
                           {gift.name}
                         </h3>
 
-                        <div
-                          className={`text-xs px-3 py-1 rounded-full whitespace-nowrap ${gift.reservedCount >= gift.quantity
-                            ? 'bg-stone-900 text-white'
-                            : 'bg-stone-100 text-stone-700'
-                            }`}
-                        >
-                          {gift.reservedCount >= gift.quantity
-                            ? 'Esgotado'
-                            : 'Disponível'}
+                        <div className="h-[40px] mt-4">
+                          {gift.reservedBy.length > 0 && (
+                            <p className="text-stone-500 text-sm">
+                              Escolhido por{' '}
+                              {gift.reservedBy.join(', ')}
+                            </p>
+                          )}
                         </div>
                       </div>
 
-                      <div className="flex-1 flex flex-col justify-between">
-                        {gift.reservedBy.length > 0 ? (
-                          <p className="text-stone-600 mb-3">
-                            Escolhido por{' '}
-                            <span className="font-medium">
-                              {gift.reservedBy.join(', ')}
-                            </span>
-                          </p>
-                        ) : (
-                          <div className="mb-3" />
+                      <div className="space-y-3 pt-4">
+
+                        <button
+                          onClick={() =>
+                            reserveGift(gift)
+                          }
+                          disabled={unavailable}
+                          className={`w-full rounded-full py-4 transition duration-300 ${unavailable
+                              ? 'bg-stone-200 text-stone-500 cursor-not-allowed'
+                              : 'bg-stone-900 text-white hover:opacity-90'
+                            }`}
+                        >
+                          {unavailable
+                            ? 'Presente reservado'
+                            : 'Quero presentear'}
+                        </button>
+
+                        {userReserved && (
+                          <button
+                            onClick={() =>
+                              cancelReservation(gift)
+                            }
+                            className="w-full border border-stone-300 text-stone-700 rounded-full py-4 hover:bg-stone-100 transition"
+                          >
+                            Cancelar reserva
+                          </button>
                         )}
                       </div>
-
-                      <button
-                        onClick={() => reserveGift(gift)}
-                        disabled={
-                          gift.reservedCount >= gift.quantity
-                        }
-                        className={`w-full rounded-2xl py-4 transition ${gift.reservedCount >= gift.quantity
-                          ? 'bg-stone-200 text-stone-500 cursor-not-allowed'
-                          : 'bg-stone-900 text-white hover:opacity-90'
-                          }`}
-                      >
-                        {gift.reservedCount >= gift.quantity
-                          ? 'Item esgotado'
-                          : 'Quero presentear'}
-                      </button>
                     </div>
+
                   </div>
-                ))}
-              </div>
+                );
+              })}
             </div>
           </div>
         </div>
       </section>
 
       {/* FOOTER */}
-      <footer className="py-16 text-center text-stone-400 text-sm tracking-[0.2em] uppercase border-t border-stone-100 bg-white mt-10">
-        Esperamos você para celebrar esse momento especial ✨
+
+      <footer className="py-24 text-center bg-[#f7f3ee]">
+
+        <h2 className="text-5xl font-serif mb-6">
+          Esperamos você ✨
+        </h2>
+
+        <p className="text-stone-500">
+          Será um dia inesquecível.
+        </p>
       </footer>
     </div>
   );
