@@ -25,14 +25,10 @@ import { giftsData } from './data/gifts';
 
 export default function WeddingSite() {
   const [guestName, setGuestName] = useState('');
-  const [loading, setLoading] = useState(false);
-
+  const [loadingRSVP, setLoadingRSVP] = useState(false);
   const [user, setUser] = useState(null);
-
   const [gifts, setGifts] = useState(giftsData);
-
   const [currentSlide, setCurrentSlide] = useState(0);
-
   const itemsPerSlide = 3;
 
   /* =========================================
@@ -112,47 +108,40 @@ export default function WeddingSite() {
   async function handleConfirm(e) {
     e.preventDefault();
 
-    const normalizedName = guestName.trim();
-
-    if (!normalizedName) {
-      alert('Digite seu nome.');
+    if (!user) {
+      alert('Faça login com Google para confirmar presença.');
       return;
     }
 
     try {
-      setLoading(true);
+      setLoadingRSVP(true);
 
-      const confirmationsRef = collection(
-        db,
-        'confirmacoes'
-      );
+      const confirmationsRef = collection(db, 'confirmacoes');
 
+      // agora evita duplicação por usuário real (UID)
       const q = query(
         confirmationsRef,
-        where('nome', '==', normalizedName)
+        where('uid', '==', user.uid)
       );
 
       const querySnapshot = await getDocs(q);
 
       if (!querySnapshot.empty) {
-        alert(
-          'Esse nome já confirmou presença ✨'
-        );
-
-        setLoading(false);
+        alert('Esse usuário já confirmou presença ✨');
         return;
       }
 
       await addDoc(confirmationsRef, {
-        nome: normalizedName,
+        uid: user.uid,
+        nome: user.displayName,
+        email: user.email,
+        foto: user.photoURL,
         confirmadoEm: serverTimestamp(),
       });
 
-      alert(
-        'Presença confirmada com sucesso ✨'
-      );
+      alert('Presença confirmada com sucesso ✨');
 
-      setGuestName('');
+      setGuestName(''); // mantém seu input funcionando visualmente
     } catch (error) {
       console.error(error);
       alert('Erro ao confirmar presença.');
@@ -431,30 +420,23 @@ export default function WeddingSite() {
             inesquecível ✨
           </p>
 
-          <form
-            onSubmit={handleConfirm}
-            className="space-y-5"
-          >
-            <input
-              type="text"
-              value={guestName}
-              onChange={(e) =>
-                setGuestName(e.target.value)
-              }
-              placeholder="Digite seu nome completo"
-              className="w-full bg-white border border-stone-200 rounded-full px-8 py-5 text-center text-lg outline-none focus:ring-2 focus:ring-stone-300 shadow-sm"
-            />
+          <h2 className="text-5xl font-serif mb-6">
+            Confirmação de presença
+          </h2>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="bg-stone-900 text-white px-10 py-5 rounded-full text-lg hover:scale-[1.02] transition duration-300"
-            >
-              {loading
-                ? 'Confirmando...'
-                : 'Confirmar presença'}
-            </button>
-          </form>
+          <p className="mb-10 text-stone-500">
+            Confirme com seu login do Google
+          </p>
+
+          <button
+            onClick={handleConfirm}
+            disabled={loadingRSVP}
+            className="bg-stone-900 text-white px-10 py-4 rounded-full"
+          >
+            {loadingRSVP
+              ? 'Confirmando...'
+              : 'Confirmar presença'}
+          </button>
         </div>
       </section>
 
@@ -607,8 +589,8 @@ export default function WeddingSite() {
                           }
                           disabled={unavailable}
                           className={`w-full rounded-full py-4 transition duration-300 ${unavailable
-                              ? 'bg-stone-200 text-stone-500 cursor-not-allowed'
-                              : 'bg-stone-900 text-white hover:opacity-90'
+                            ? 'bg-stone-200 text-stone-500 cursor-not-allowed'
+                            : 'bg-stone-900 text-white hover:opacity-90'
                             }`}
                         >
                           {unavailable
