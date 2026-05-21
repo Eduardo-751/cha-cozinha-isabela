@@ -33,6 +33,7 @@ export default function WeddingSite() {
   const [startX, setStartX] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [loadingGift, setLoadingGift] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   /* =========================================
      AUTH
@@ -128,11 +129,6 @@ export default function WeddingSite() {
       );
 
       const querySnapshot = await getDocs(q);
-
-      if (!querySnapshot.empty) {
-        alert('Você já confirmou presença ✨');
-        return;
-      }
 
       await addDoc(confirmationsRef, {
         uid: currentUser.uid,
@@ -237,9 +233,6 @@ export default function WeddingSite() {
         reservedCount: currentData.reservedCount + 1,
         reservedBy: [...(currentData.reservedBy || []), person,],
       });
-
-      alert('Presente reservado com sucesso ✨');
-
     } catch (error) {
       console.error(error);
       alert('Erro ao reservar presente.');
@@ -286,8 +279,6 @@ export default function WeddingSite() {
 
         reservedBy: updatedNames,
       });
-
-      alert('Reserva cancelada ✨');
     } catch (error) {
       console.error(error);
     }
@@ -345,6 +336,17 @@ export default function WeddingSite() {
 
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  useEffect(() => {
+  const handleResize = () => {
+    setIsMobile(window.innerWidth < 640);
+  };
+
+  handleResize();
+  window.addEventListener('resize', handleResize);
+
+  return () => window.removeEventListener('resize', handleResize);
+}, []);
 
   return (
     <div className="bg-[#f7f3ee] text-stone-800 overflow-x-hidden">
@@ -556,6 +558,7 @@ export default function WeddingSite() {
               setIsDragging(false);
             }}
             onMouseDown={(e) => {
+              if (!isMobile) return;
               setStartX(e.clientX);
               setIsDragging(true);
             }}
@@ -577,7 +580,7 @@ export default function WeddingSite() {
 
             <button
               onClick={prevSlide}
-              className="hidden sm:flex absolute left-2 sm:left-[-20px] top-1/2 -translate-y-1/2 z-20 w-14 h-14 rounded-full bg-white/90
+              className="absolute left-2 sm:left-[-20px] top-1/2 -translate-y-1/2 z-20 w-14 h-14 rounded-full bg-white/90
                         backdrop-blur-xl border border-stone-200 shadow-lg flex items-center justify-center hover:bg-stone-900
                         hover:text-white transition duration-300"
             >
@@ -588,7 +591,7 @@ export default function WeddingSite() {
 
             <button
               onClick={nextSlide}
-              className="hidden sm:flex absolute right-2 sm:right-[-20px] top-1/2 -translate-y-1/2 z-20 w-14 h-14 rounded-full bg-white/90
+              className="absolute right-2 sm:right-[-20px] top-1/2 -translate-y-1/2 z-20 w-14 h-14 rounded-full bg-white/90
                         backdrop-blur-xl border border-stone-200 shadow-lg flex items-center justify-center hover:bg-stone-900 
                         hover:text-white transitio duration-300"
             >
