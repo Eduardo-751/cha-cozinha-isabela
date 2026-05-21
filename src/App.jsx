@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { giftsData } from './data/gifts';
 import { db } from './firebase';
 
@@ -9,11 +9,11 @@ import {
   query,
   where,
   getDocs,
+  getDoc,
+  doc,
+  setDoc,
+  onSnapshot,
 } from 'firebase/firestore';
-
-/* =========================
-   COMPONENT
-========================= */
 
 export default function WeddingSite() {
   const [guestName, setGuestName] = useState('');
@@ -21,9 +21,39 @@ export default function WeddingSite() {
   const [gifts, setGifts] = useState(giftsData);
   const [currentSlide, setCurrentSlide] = useState(0);
 
-  /* =========================
+  useEffect(() => {
+    const unsubscribe = onSnapshot(
+      collection(db, 'presentes'),
+      (snapshot) => {
+        const reservedData = {};
+
+        snapshot.forEach((doc) => {
+          reservedData[doc.id] = doc.data();
+        });
+
+        const updatedGifts = giftsData.map((gift) => {
+          const firebaseGift = reservedData[gift.id];
+
+          if (!firebaseGift) return gift;
+
+          return {
+            ...gift,
+            reservedCount: firebaseGift.reservedCount || 0,
+            reservedBy: firebaseGift.reservedBy || [],
+            quantity: firebaseGift.quantity || 1,
+          };
+        });
+
+        setGifts(updatedGifts);
+      }
+    );
+
+    return () => unsubscribe();
+  }, []);
+
+  /* =========================================
      CONFIRMAR PRESENÇA
-  ========================= */
+  ========================================= */
 
   async function handleConfirm(e) {
     e.preventDefault();
@@ -40,7 +70,6 @@ export default function WeddingSite() {
 
       const confirmationsRef = collection(db, 'confirmacoes');
 
-      // verifica se já confirmou
       const q = query(
         confirmationsRef,
         where('nome', '==', normalizedName)
@@ -54,7 +83,6 @@ export default function WeddingSite() {
         return;
       }
 
-      // salva confirmação
       await addDoc(confirmationsRef, {
         nome: normalizedName,
         confirmadoEm: serverTimestamp(),
@@ -64,36 +92,77 @@ export default function WeddingSite() {
 
       setGuestName('');
     } catch (error) {
-      console.error('ERRO FIREBASE:', error);
-      alert(error.message);
+      console.error(error);
+      alert('Erro ao confirmar presença.');
     } finally {
       setLoading(false);
     }
   }
 
-  /* =========================
+  /* =========================================
      RESERVAR PRESENTE
-  ========================= */
+  ========================================= */
 
-  function reserveGift(giftId) {
+  async function reserveGift(gift) {
     const person = prompt('Digite seu nome');
 
     if (!person) return;
 
-    setGifts((prev) =>
-      prev.map((gift) =>
-        gift.id === giftId
-          ? {
-            ...gift,
-            reserved: true,
-            reservedBy: person,
-          }
-          : gift
-      )
-    );
+    try {
+      const giftRef = doc(db, 'presentes', String(gift.id));
 
-    alert('Presente reservado com sucesso ✨');
+      const giftSnap = await getDoc(giftRef);
+
+      let currentData = {
+        reservedCount: 0,
+        reservedBy: [],
+        quantity: gift.quantity,
+      };
+
+      if (giftSnap.exists()) {
+        currentData = giftSnap.data();
+      }
+
+      // esgotado
+      if (
+        currentData.reservedCount >= currentData.quantity
+      ) {
+        alert('Esse presente já foi reservado ✨');
+        return;
+      }
+
+      // mesma pessoa
+      const alreadyReserved =
+        currentData.reservedBy?.some(
+          (name) =>
+            name.toLowerCase() === person.toLowerCase()
+        );
+
+      if (alreadyReserved) {
+        alert('Você já reservou este presente ✨');
+        return;
+      }
+
+      await setDoc(giftRef, {
+        quantity: currentData.quantity,
+        reservedCount:
+          currentData.reservedCount + 1,
+        reservedBy: [
+          ...(currentData.reservedBy || []),
+          person,
+        ],
+      });
+
+      alert('Presente reservado com sucesso ✨');
+    } catch (error) {
+      console.error(error);
+      alert('Erro ao reservar presente.');
+    }
   }
+
+  /* =========================================
+     CARROSSEL
+  ========================================= */
 
   const itemsPerSlide = 3;
 
@@ -204,8 +273,8 @@ export default function WeddingSite() {
               type="submit"
               disabled={loading}
               className={`w-full rounded-2xl py-4 text-lg transition duration-300 shadow-md ${loading
-                  ? 'bg-stone-400 text-white cursor-not-allowed'
-                  : 'bg-stone-900 text-white hover:scale-[1.01]'
+                ? 'bg-stone-400 text-white cursor-not-allowed'
+                : 'bg-stone-900 text-white hover:scale-[1.01]'
                 }`}
             >
               {loading ? 'Confirmando...' : 'Confirmar presença'}
@@ -233,32 +302,33 @@ export default function WeddingSite() {
             </p>
           </div>
 
+          {/* CARROSSEL */}
           <div className="relative">
-            {/* BOTÃO ESQUERDA */}
+            {/* ESQUERDA */}
             <button
               onClick={prevSlide}
               disabled={currentSlide === 0}
               className={`absolute left-[-20px] top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full shadow-lg transition ${currentSlide === 0
-                  ? 'bg-stone-200 text-stone-400 cursor-not-allowed'
-                  : 'bg-white text-stone-900 hover:scale-105'
+                ? 'bg-stone-200 text-stone-400 cursor-not-allowed'
+                : 'bg-white text-stone-900 hover:scale-105'
                 }`}
             >
               ←
             </button>
 
-            {/* BOTÃO DIREITA */}
+            {/* DIREITA */}
             <button
               onClick={nextSlide}
               disabled={currentSlide + itemsPerSlide >= gifts.length}
               className={`absolute right-[-20px] top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full shadow-lg transition ${currentSlide + itemsPerSlide >= gifts.length
-                  ? 'bg-stone-200 text-stone-400 cursor-not-allowed'
-                  : 'bg-white text-stone-900 hover:scale-105'
+                ? 'bg-stone-200 text-stone-400 cursor-not-allowed'
+                : 'bg-white text-stone-900 hover:scale-105'
                 }`}
             >
               →
             </button>
 
-            {/* CARDS */}
+            {/* SLIDES */}
             <div className="overflow-hidden">
               <div
                 className="flex gap-8 transition-transform duration-500"
@@ -278,43 +348,49 @@ export default function WeddingSite() {
                       className="h-64 w-full object-cover"
                     />
 
-                    <div className="p-7">
+                    <div className="p-7 flex flex-col h-[260px]">
                       <div className="flex items-start justify-between gap-3 mb-4">
-                        <h3 className="text-2xl font-light text-stone-900">
+                        <h3 className="text-2xl font-light text-stone-900 min-h-[64px] leading-tight">
                           {gift.name}
                         </h3>
 
                         <div
-                          className={`text-xs px-3 py-1 rounded-full whitespace-nowrap ${gift.reserved
-                              ? 'bg-stone-900 text-white'
-                              : 'bg-stone-100 text-stone-700'
+                          className={`text-xs px-3 py-1 rounded-full whitespace-nowrap ${gift.reservedCount >= gift.quantity
+                            ? 'bg-stone-900 text-white'
+                            : 'bg-stone-100 text-stone-700'
                             }`}
                         >
-                          {gift.reserved ? 'Reservado' : 'Disponível'}
+                          {gift.reservedCount >= gift.quantity
+                            ? 'Esgotado'
+                            : 'Disponível'}
                         </div>
                       </div>
 
-                      {gift.reserved ? (
-                        <p className="text-stone-600 mb-6">
-                          Escolhido por{' '}
-                          <span className="font-medium">
-                            {gift.reservedBy}
-                          </span>
-                        </p>
-                      ) : (
-                        <div className="mb-6" />
-                      )}
+                      <div className="flex-1 flex flex-col justify-between">
+                        {gift.reservedBy.length > 0 ? (
+                          <p className="text-stone-600 mb-3">
+                            Escolhido por{' '}
+                            <span className="font-medium">
+                              {gift.reservedBy.join(', ')}
+                            </span>
+                          </p>
+                        ) : (
+                          <div className="mb-3" />
+                        )}
+                      </div>
 
                       <button
-                        onClick={() => reserveGift(gift.id)}
-                        disabled={gift.reserved}
-                        className={`w-full rounded-2xl py-4 transition ${gift.reserved
-                            ? 'bg-stone-200 text-stone-500 cursor-not-allowed'
-                            : 'bg-stone-900 text-white hover:opacity-90'
+                        onClick={() => reserveGift(gift)}
+                        disabled={
+                          gift.reservedCount >= gift.quantity
+                        }
+                        className={`w-full rounded-2xl py-4 transition ${gift.reservedCount >= gift.quantity
+                          ? 'bg-stone-200 text-stone-500 cursor-not-allowed'
+                          : 'bg-stone-900 text-white hover:opacity-90'
                           }`}
                       >
-                        {gift.reserved
-                          ? 'Presente já escolhido'
+                        {gift.reservedCount >= gift.quantity
+                          ? 'Item esgotado'
                           : 'Quero presentear'}
                       </button>
                     </div>
