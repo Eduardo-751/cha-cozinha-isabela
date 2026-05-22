@@ -11,8 +11,8 @@ import {
   onSnapshot,
   serverTimestamp,
   arrayRemove,
-  updateDoc, 
-  increment, 
+  updateDoc,
+  increment,
   arrayUnion
 } from 'firebase/firestore';
 
@@ -414,9 +414,9 @@ export default function WeddingSite() {
 
   useEffect(() => {
     function handleResize() {
-      if (window.innerWidth < 640) {
+      if (window.innerWidth < 768) {
         setItemsPerSlide(1);
-      } else if (window.innerWidth < 1024) {
+      } else if (window.innerWidth < 1280) {
         setItemsPerSlide(2);
       } else {
         setItemsPerSlide(3);
@@ -425,8 +425,9 @@ export default function WeddingSite() {
 
     handleResize();
     window.addEventListener('resize', handleResize);
+    return () =>
+      window.removeEventListener('resize', handleResize);
 
-    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   useEffect(() => {
