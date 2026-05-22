@@ -602,14 +602,14 @@ export default function WeddingSite() {
           {confirmationDoc && (
             <div className="mt-10 max-w-md mx-auto text-center">
               <h3 className="text-xl font-serif mb-4">
-                Confirmar para...
+                Você também pode confirmar presença para outras pessoas
               </h3>
 
               <div className="flex gap-2 mb-4">
                 <input
                   value={newCompanion}
                   onChange={(e) => setNewCompanion(e.target.value)}
-                  placeholder="Nome do convidado"
+                  placeholder="Digite o nome da pessoa"
                   className="border p-3 rounded w-full"
                 />
 
@@ -617,11 +617,20 @@ export default function WeddingSite() {
                   onClick={addCompanion}
                   className="bg-stone-900 text-white px-4 rounded"
                 >
-                  +
+                  Confirmar
                 </button>
               </div>
 
               <ul className="text-left space-y-1">
+                <li className="flex justify-between items-center">
+                  <span>
+                    {confirmationDoc?.nome}
+                  </span>
+
+                  <span className="text-green-500">
+                    Confirmado
+                  </span>
+                </li>
                 {confirmationDoc?.acompanhantes?.map((c, i) => (
                   <li key={i} className="flex justify-between">
                     <span>{c}</span>
