@@ -771,7 +771,7 @@ export default function WeddingSite() {
                                 </h3>
 
                                 <div className="h-[40px] mt-4">
-                                  {(gift.reservedBy || []).includes(user?.displayName) && (
+                                  {(gift.reservedBy || []).length > 0 && (
                                     <p className="text-stone-500 text-sm">
                                       Escolhido por {gift.reservedBy.join(', ')}
                                     </p>
