@@ -1,123 +1,312 @@
 import { useEffect, useState } from 'react';
 
 import {
-  collection,
-  onSnapshot,
+    collection,
+    onSnapshot,
+    doc,
+    getDoc,
+    setDoc,
 } from 'firebase/firestore';
 
-import { db } from './firebase';
-import { giftsData } from './data/gifts';
+import {
+    onAuthStateChanged,
+} from 'firebase/auth';
 
+import { db, auth } from './firebase';
+import { giftsData } from './data/gifts';
 import { Link } from 'react-router-dom';
 
 export default function Presentes() {
-  const [gifts, setGifts] = useState(giftsData);
+    const [gifts, setGifts] = useState(giftsData);
+    const [user, setUser] = useState(null);
+    const [loadingGift, setLoadingGift] = useState(false);
 
-  useEffect(() => {
-    const unsubscribe = onSnapshot(
-      collection(db, 'presentes'),
-      (snapshot) => {
-        const reservedData = {};
-
-        snapshot.forEach((doc) => {
-          reservedData[doc.id] = doc.data();
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+            setUser(currentUser);
         });
 
-        setGifts(() => {
-          return giftsData.map((gift) => {
-            const firebaseGift = reservedData[gift.id];
+        return () => unsubscribe();
+    }, []);
 
-            if (!firebaseGift) return gift;
+    useEffect(() => {
+        const unsubscribe = onSnapshot(
+            collection(db, 'presentes'),
+            (snapshot) => {
+                const reservedData = {};
 
-            return {
-              ...gift,
-              reservedCount: firebaseGift.reservedCount || 0,
-              reservedBy: firebaseGift.reservedBy || [],
-              quantity: firebaseGift.quantity || 1,
+                snapshot.forEach((doc) => {
+                    reservedData[doc.id] = doc.data();
+                });
+
+                setGifts(() => {
+                    return giftsData.map((gift) => {
+                        const firebaseGift = reservedData[gift.id];
+
+                        if (!firebaseGift) return gift;
+
+                        return {
+                            ...gift,
+                            reservedCount: firebaseGift.reservedCount || 0,
+                            reservedBy: firebaseGift.reservedBy || [],
+                            quantity: firebaseGift.quantity || 1,
+                        };
+                    });
+                });
+            }
+        );
+
+        return () => unsubscribe();
+    }, []);
+
+    useEffect(() => {
+        const unsubscribe = onSnapshot(
+            collection(db, 'presentes'),
+            (snapshot) => {
+
+                const reservedData = {};
+
+                snapshot.forEach((doc) => {
+                    reservedData[doc.id] = doc.data();
+                });
+
+                setGifts(() => {
+                    return gifts.map((gift) => {
+
+                        const firebaseGift =
+                            reservedData[gift.id];
+
+                        if (!firebaseGift) return gift;
+
+                        return {
+                            ...gift,
+                            reservedCount:
+                                firebaseGift.reservedCount || 0,
+
+                            reservedBy:
+                                firebaseGift.reservedBy || [],
+
+                            quantity:
+                                firebaseGift.quantity || 1,
+                        };
+                    });
+                });
+            }
+        );
+
+        return () => unsubscribe();
+    }, []);
+
+    async function reserveGift(gift) {
+
+        if (!user || loadingGift) return;
+
+        setLoadingGift(true);
+
+        try {
+
+            const person = user.displayName;
+
+            const giftRef = doc(
+                db,
+                'presentes',
+                String(gift.id)
+            );
+
+            const giftSnap = await getDoc(giftRef);
+
+            let currentData = {
+                reservedCount: 0,
+                reservedBy: [],
+                quantity: gift.quantity,
             };
-          });
-        });
-      }
-    );
 
-    return () => unsubscribe();
-  }, []);
+            if (giftSnap.exists()) {
+                currentData = giftSnap.data();
+            }
 
-  return (
-    <div className="min-h-screen bg-[#f7f3ee] px-6 py-20">
+            if (
+                currentData.reservedCount >=
+                currentData.quantity
+            ) {
+                toast('Esse presente já foi reservado');
+                return;
+            }
 
-      <div className="max-w-7xl mx-auto">
+            const alreadyReserved =
+                currentData.reservedBy?.includes(person);
 
-        <div className="flex justify-between items-center mb-16">
+            if (alreadyReserved) {
+                toast('Você já reservou este presente');
+                return;
+            }
 
-          <div>
-            <h1 className="text-5xl font-serif mb-4">
-              Lista de Presentes
-            </h1>
+            await setDoc(giftRef, {
+                quantity: currentData.quantity,
 
-            <p className="text-stone-500">
-              Escolha um presente especial ✨
-            </p>
-          </div>
+                reservedCount:
+                    currentData.reservedCount + 1,
 
-          <Link
-            to="/"
-            className="border border-stone-300 px-6 py-3 rounded-full hover:bg-stone-900 hover:text-white transition"
-          >
-            Voltar
-          </Link>
+                reservedBy: [
+                    ...(currentData.reservedBy || []),
+                    person,
+                ],
+            });
 
-        </div>
+            toast.success('Presente reservado ✨');
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
+        } catch (error) {
 
-          {gifts.map((gift) => {
-            const unavailable =
-              gift.reservedCount >= gift.quantity;
+            console.error(error);
 
-            return (
-              <div
-                key={gift.id}
-                className="bg-white rounded-[32px] overflow-hidden"
-              >
-                <img
-                  src={gift.image}
-                  alt={gift.name}
-                  className="w-full h-[420px] object-cover"
-                />
+            toast.error('Erro ao reservar');
 
-                <div className="p-6">
+        } finally {
 
-                  <h2 className="text-2xl font-serif mb-4">
-                    {gift.name}
-                  </h2>
+            setLoadingGift(false);
+        }
+    }
 
-                  {(gift.reservedBy || []).length > 0 && (
-                    <p className="text-stone-500 text-sm mb-4">
-                      Escolhido por {gift.reservedBy.join(', ')}
-                    </p>
-                  )}
+    async function cancelReservation(gift) {
+        if (!user) return;
 
-                  <button
-                    disabled={unavailable}
-                    className={`w-full py-4 rounded-full transition ${
-                      unavailable
-                        ? 'bg-stone-200 text-stone-500'
-                        : 'bg-stone-900 text-white'
-                    }`}
-                  >
-                    {unavailable
-                      ? 'Presente reservado'
-                      : 'Disponível'}
-                  </button>
+        try {
+            const person = user.displayName;
+
+            const giftRef = doc(
+                db,
+                'presentes',
+                String(gift.id)
+            );
+
+            const giftSnap = await getDoc(giftRef);
+
+            if (!giftSnap.exists()) {
+                return;
+            }
+
+            const data = giftSnap.data();
+
+            const updatedNames = (data.reservedBy || []).filter(
+                (name) => name !== person
+            );
+
+            await setDoc(giftRef, {
+                ...data,
+
+                reservedCount: Math.max(
+                    data.reservedCount - 1,
+                    0
+                ),
+
+                reservedBy: updatedNames,
+            });
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+
+    return (
+        <div className="min-h-screen bg-[#f7f3ee] px-6 py-20">
+
+            <div className="max-w-7xl mx-auto">
+
+                <div className="flex justify-between items-center mb-16">
+
+                    <div>
+                        <h1 className="text-5xl font-serif mb-4">
+                            Lista de Presentes
+                        </h1>
+
+                        <p className="text-stone-500">
+                            Escolha um presente especial ✨
+                        </p>
+                    </div>
+
+                    <Link
+                        to="/"
+                        className="border border-stone-300 px-6 py-3 rounded-full hover:bg-stone-900 hover:text-white transition"
+                    >
+                        Voltar
+                    </Link>
 
                 </div>
-              </div>
-            );
-          })}
 
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
+
+                    {gifts.map((gift) => {
+                        const userReserved =
+                            gift.reservedBy?.includes(user?.displayName);
+                        const unavailable =
+                            gift.reservedCount >= gift.quantity;
+
+                        return (
+                            <div key={gift.id} className="group w-full">
+
+                                {/* CARD */}
+                                <div className="overflow-hidden rounded-[36px] mb-6">
+                                    <img
+                                        src={gift.image}
+                                        alt={gift.name}
+                                        className="w-full h-[420px] object-cover group-hover:scale-105 transition duration-700"
+                                    />
+                                </div>
+
+                                <div className="flex flex-col justify-between min-h-[220px]">
+
+                                    <div>
+                                        <h3 className="text-3xl font-serif leading-tight min-h-[76px] flex items-start">
+                                            {gift.name}
+                                        </h3>
+
+                                        <div className="h-[40px] mt-4">
+                                            {(gift.reservedBy || []).length > 0 && (
+                                                <p className="text-stone-500 text-sm">
+                                                    Escolhido por {gift.reservedBy.join(', ')}
+                                                </p>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-3 pt-4">
+
+                                        <button
+                                            onClick={() => reserveGift(gift)}
+                                            disabled={unavailable}
+                                            className={`w-full rounded-full py-4 transition duration-300 ${unavailable
+                                                ? 'bg-stone-200 text-stone-500 cursor-not-allowed'
+                                                : 'bg-stone-900 text-white hover:opacity-90'
+                                                }`}
+                                        >
+                                            {unavailable
+                                                ? 'Presente reservado'
+                                                : 'Quero presentear'}
+                                        </button>
+
+                                        <div className="h-[56px]">
+                                            {userReserved ? (
+                                                <button
+                                                    onClick={() => cancelReservation(gift)}
+                                                    className="w-full border border-stone-300 text-stone-700 rounded-full py-4 hover:bg-stone-100 transition"
+                                                >
+                                                    Cancelar reserva
+                                                </button>
+                                            ) : (
+                                                <div className="w-full h-full" />
+                                            )}
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        );
+                    })}
+
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-  );
+    );
 }
