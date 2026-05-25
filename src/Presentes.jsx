@@ -210,9 +210,9 @@ export default function Presentes() {
     return (
         <div className="min-h-screen bg-[#f7f3ee] px-6 py-20">
 
-            <div className="max-w-7xl mx-auto">
+            <div className="max-w-[1800px] mx-auto">
 
-                <div className="flex justify-between items-center mb-16">
+                <div className="flex items-center justify-between mb-16">
 
                     <div>
                         <h1 className="text-5xl font-serif mb-4">
@@ -233,71 +233,89 @@ export default function Presentes() {
 
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
+                <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-8">
 
                     {gifts.map((gift) => {
+
                         const userReserved =
                             gift.reservedBy?.includes(user?.displayName);
+
                         const unavailable =
-                            gift.reservedCount >= gift.quantity;
+                            (gift.reservedCount || 0) >= (gift.quantity || 1);
 
                         return (
-                            <div key={gift.id} className="group w-full">
+                            <div
+                                key={gift.id}
+                                className="bg-white rounded-[32px] overflow-hidden p-4"
+                            >
 
-                                {/* CARD */}
-                                <div className="overflow-hidden rounded-[36px] mb-6">
+                                <div className="overflow-hidden rounded-[24px]">
                                     <img
                                         src={gift.image}
                                         alt={gift.name}
-                                        className="w-full h-[420px] object-cover group-hover:scale-105 transition duration-700"
+                                        className="w-full h-[320px] object-cover hover:scale-105 transition duration-700"
                                     />
                                 </div>
 
-                                <div className="flex flex-col justify-between min-h-[220px]">
+                                <div className="pt-5">
 
-                                    <div>
-                                        <h3 className="text-3xl font-serif leading-tight min-h-[76px] flex items-start">
-                                            {gift.name}
-                                        </h3>
+                                    <h2 className="text-xl font-serif leading-tight mb-2">
+                                        {gift.name}
+                                    </h2>
 
-                                        <div className="h-[40px] mt-4">
-                                            {(gift.reservedBy || []).length > 0 && (
-                                                <p className="text-stone-500 text-sm">
-                                                    Escolhido por {gift.reservedBy.join(', ')}
+                                    <p className="text-sm text-stone-500 mb-4">
+                                        Disponível{" "}
+                                        {(gift.quantity || 1) - (gift.reservedCount || 0)}
+                                        {" "}de {gift.quantity || 1}
+                                    </p>
+
+                                    {(gift.reservedBy || []).length > 0 && (
+                                        <div className="flex flex-col gap-1 mb-4">
+
+                                            {gift.reservedBy.map((person, index) => (
+                                                <p
+                                                    key={index}
+                                                    className="text-sm text-stone-500"
+                                                >
+                                                    Escolhido por {person}
                                                 </p>
-                                            )}
+                                            ))}
+
                                         </div>
-                                    </div>
+                                    )}
 
-                                    <div className="space-y-3 pt-4">
-
-                                        <button
-                                            onClick={() => reserveGift(gift)}
-                                            disabled={unavailable}
-                                            className={`w-full rounded-full py-4 transition duration-300 ${unavailable
+                                    <button
+                                        onClick={() => reserveGift(gift)}
+                                        disabled={unavailable}
+                                        className={`w-full rounded-full py-4 transition ${unavailable
                                                 ? 'bg-stone-200 text-stone-500 cursor-not-allowed'
                                                 : 'bg-stone-900 text-white hover:opacity-90'
-                                                }`}
+                                            }`}
+                                    >
+                                        {unavailable
+                                            ? 'Presente reservado'
+                                            : 'Quero presentear'}
+                                    </button>
+
+                                    {userReserved && (
+                                        <button
+                                            onClick={() => cancelReservation(gift)}
+                                            className="w-full mt-3 border border-stone-300 rounded-full py-4 hover:bg-stone-100 transition"
                                         >
-                                            {unavailable
-                                                ? 'Presente reservado'
-                                                : 'Quero presentear'}
+                                            Cancelar reserva
                                         </button>
+                                    )}
 
-                                        <div className="h-[56px]">
-                                            {userReserved ? (
-                                                <button
-                                                    onClick={() => cancelReservation(gift)}
-                                                    className="w-full border border-stone-300 text-stone-700 rounded-full py-4 hover:bg-stone-100 transition"
-                                                >
-                                                    Cancelar reserva
-                                                </button>
-                                            ) : (
-                                                <div className="w-full h-full" />
-                                            )}
-                                        </div>
-
-                                    </div>
+                                    {gift.link && (
+                                        <a
+                                            href={gift.link}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="block text-center text-sm text-stone-500 hover:text-stone-900 transition mt-4"
+                                        >
+                                            Ver referência →
+                                        </a>
+                                    )}
 
                                 </div>
 
@@ -306,7 +324,9 @@ export default function Presentes() {
                     })}
 
                 </div>
+
             </div>
+
         </div>
     );
 }
