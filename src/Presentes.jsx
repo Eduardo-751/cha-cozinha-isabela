@@ -210,7 +210,7 @@ export default function Presentes() {
     return (
         <div className="min-h-screen bg-[#f7f3ee] px-6 py-20">
 
-            <div className="max-w-[1800px] mx-auto">
+            <div className="max-w-7xl mx-auto">
 
                 <div className="flex items-center justify-between mb-16">
 
@@ -233,7 +233,7 @@ export default function Presentes() {
 
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
 
                     {gifts.map((gift) => {
 
@@ -253,7 +253,7 @@ export default function Presentes() {
                                     <img
                                         src={gift.image}
                                         alt={gift.name}
-                                        className="w-full h-[320px] object-cover hover:scale-105 transition duration-700"
+                                        className="w-full h-[420px] object-cover group-hover:scale-105 transition duration-700"
                                     />
                                 </div>
 
