@@ -27,7 +27,7 @@ import escovaImg from '../assets/escovaImg.jpg';
 import organizadorImg from '../assets/organizador2Img.jpg';
 import limpezaImg from '../assets/conjunto_limpezaImg.jpg';
 import assadeiraInoxImg from '../assets/assadeirasImg.jpg';
-import escorredorImg from '../assets/escorredorImg.jpg';
+import escorredorLoucasImg from '../assets/escorredorLoucasImg.jpg';
 import saleiroImg from '../assets/saleiroImg.jpg';
 import coadorImg from '../assets/coadorImg.jpg';
 import travessaImg from '../assets/travessaImg.jpg';
@@ -36,7 +36,30 @@ import raladorImg from '../assets/raladorImg.jpg';
 import boleiraImg from '../assets/boleiraImg.jpg';
 import manteigueiraImg from '../assets/manteigueiraImg.jpg';
 import utensilios2Img from '../assets/utensilios2Img.jpg';
-
+import afiadorImg from '../assets/AfiadorImg.jpg';
+import utensiliosInoxImg from '../assets/utensiliosInoxImg.jpg';
+import tesouraImg from '../assets/TesouraImg.jpg';
+import potesRedondosImg from '../assets/PotesPlasticosRedondosImg.jpg';
+import potesPlasticosImg from '../assets/PotesPlasticosImg.jpg';
+import buleImg from '../assets/BuleImg.jpg';
+import talheresImg from '../assets/TalheresImg.jpg';
+import bartenderImg from '../assets/ConjuntoBartenderImg.jpg';
+import varalImg from '../assets/VaralImg.jpg';
+import lixeiraImg from '../assets/LixeiraImg.jpg';
+import pilaoImg from '../assets/PilaoImg.jpg';
+import potesOrganizadoresImg from '../assets/PotesOrganizadoresImg.jpg';
+import mopImg from '../assets/MopImg.jpg';
+import petisqueiraVidroImg from '../assets/PetisqueiraVidroImg.jpg';
+import petisqueiraBambuImg from '../assets/PetisqueiraBambuImg.jpg';
+import cuzcuzeiraImg from '../assets/cuzcuzeiraImg.jpg';
+import portaTemperoImg from '../assets/portaTemperoImg.jpg'
+import BandeijaImg from '../assets/BandeijaImg.jpg';
+import colherMedidoraImg from '../assets/colherMedidoraImg.jpg';
+import escorredorImg from '../assets/escorredorImg.jpg';
+import portaFriosImg from '../assets/portaFriosImg.jpg'
+import potesCeramicaImg from '../assets/potesCeramicaImg.jpg'
+import dosadoresImg from '../assets/dosadoresImg.jpg'
+import portaAlhoImg from '../assets/portaAlhoImg.jpg'
 
 export const giftsData = [
   {
@@ -46,6 +69,7 @@ export const giftsData = [
     reserved: false,
     quantity: 1,
     reservedBy: '',
+    link: '',
   },
 
   {
@@ -55,6 +79,7 @@ export const giftsData = [
     reserved: false,
     quantity: 1,
     reservedBy: '',
+    link: '',
   },
 
   {
@@ -64,6 +89,7 @@ export const giftsData = [
     reserved: false,
     quantity: 1,
     reservedBy: '',
+    link: '',
   },
 
   {
@@ -71,26 +97,29 @@ export const giftsData = [
     name: 'Tábua de corte',
     image: tabuaImg,
     reserved: false,
-    quantity: 1,
+    quantity: 2,
     reservedBy: '',
+    link: '',
   },
 
   {
     id: 5,
-    name: 'Assadeira cerâmica',
+    name: 'Conjunto de Travessa de Cerâmica',
     image: assadeiraImg,
     reserved: false,
     quantity: 1,
     reservedBy: '',
+    link: 'https://www.amazon.com.br/LYOR-Conjunto-Refratários-Branco-Porcelana/dp/B0DNTZFP2K/ref=asc_df_B0DNTZFP2K?mcid=ed5f9b09b59f3e7db5fae65b4c7e45b7&tag=googleshopp00-20&linkCode=df0&hvadid=709964506262&hvpos=&hvnetw=g&hvrand=5259709340108453958&hvpone=&hvptwo=&hvqmt=&hvdev=c&hvdvcmdl=&hvlocint=&hvlocphy=9074175&hvtargid=pla-2429715002572&psc=1&hvocijid=5259709340108453958-B0DNTZFP2K-&hvexpln=0&language=pt_BR',
   },
 
   {
     id: 6,
-    name: 'Conjunto potes de vidro',
+    name: 'Potes de vidro retangulares',
     image: potesVidroImg,
     reserved: false,
     quantity: 1,
     reservedBy: '',
+    link: '',
   },
 
   {
@@ -100,15 +129,17 @@ export const giftsData = [
     reserved: false,
     quantity: 1,
     reservedBy: '',
+    link: '',
   },
 
   {
     id: 8,
-    name: 'Conjunto Fouet',
+    name: 'Conjunto de Fouet',
     image: fouetImg,
     reserved: false,
     quantity: 1,
     reservedBy: '',
+    link: '',
   },
 
   {
@@ -118,6 +149,7 @@ export const giftsData = [
     reserved: false,
     quantity: 1,
     reservedBy: '',
+    link: '',
   },
 
   {
@@ -127,42 +159,47 @@ export const giftsData = [
     reserved: false,
     quantity: 1,
     reservedBy: '',
+    link: '',
   },
 
   {
     id: 11,
-    name: 'Conjunto potes herméticos',
+    name: 'Conjunto de Potes Herméticos',
     image: hermeticosImg,
     reserved: false,
-    quantity: 1,
+    quantity: 3,
     reservedBy: '',
+    link: '',
   },
 
   {
     id: 12,
-    name: 'Balança digital',
+    name: 'Balança Digital',
     image: balancaImg,
     reserved: false,
     quantity: 1,
     reservedBy: '',
+    link: '',
   },
 
   {
     id: 13,
-    name: 'Potes de vidro',
+    name: 'Potes de Vidro Redondos',
     image: vidroImg,
     reserved: false,
     quantity: 1,
     reservedBy: '',
+    link: '',
   },
 
   {
     id: 14,
-    name: 'Organizador de frutas geladeira',
+    name: 'Potes Organizadores para Fruta',
     image: organizadorGeladeiraImg,
     reserved: false,
     quantity: 1,
     reservedBy: '',
+    link: '',
   },
 
   {
@@ -172,24 +209,27 @@ export const giftsData = [
     reserved: false,
     quantity: 1,
     reservedBy: '',
+    link: '',
   },
 
   {
     id: 16,
-    name: 'Conjunto copos',
+    name: 'Conjunto de copos',
     image: copos1Img,
     reserved: false,
     quantity: 1,
     reservedBy: '',
+    link: '',
   },
 
   {
     id: 17,
-    name: 'Conjunto peneiras',
+    name: 'Conjunto de peneiras',
     image: peneirasImg,
     reserved: false,
     quantity: 1,
     reservedBy: '',
+    link: '',
   },
 
   {
@@ -199,6 +239,7 @@ export const giftsData = [
     reserved: false,
     quantity: 1,
     reservedBy: '',
+    link: '',
   },
 
   {
@@ -208,6 +249,7 @@ export const giftsData = [
     reserved: false,
     quantity: 1,
     reservedBy: '',
+    link: '',
   },
 
   {
@@ -217,15 +259,17 @@ export const giftsData = [
     reserved: false,
     quantity: 1,
     reservedBy: '',
+    link: '',
   },
 
   {
     id: 21,
-    name: 'Centrífuga salada',
+    name: 'Centrífuga de salada',
     image: centrifugaImg,
     reserved: false,
     quantity: 1,
     reservedBy: '',
+    link: '',
   },
 
   {
@@ -235,15 +279,17 @@ export const giftsData = [
     reserved: false,
     quantity: 1,
     reservedBy: '',
+    link: '',
   },
 
   {
     id: 23,
-    name: 'Conjunto ramekin',
+    name: 'Conjunto de ramekin',
     image: ramekinImg,
     reserved: false,
     quantity: 1,
     reservedBy: '',
+    link: '',
   },
 
   {
@@ -253,6 +299,7 @@ export const giftsData = [
     reserved: false,
     quantity: 1,
     reservedBy: '',
+    link: '',
   },
 
   {
@@ -262,24 +309,27 @@ export const giftsData = [
     reserved: false,
     quantity: 1,
     reservedBy: '',
+    link: '',
   },
 
   {
     id: 26,
-    name: 'Conjunto organizador de geladeira',
+    name: 'Potes Organizadores para Geladeira',
     image: organizadorImg,
     reserved: false,
     quantity: 1,
     reservedBy: '',
+    link: '',
   },
 
   {
     id: 27,
-    name: 'Conjunto limpeza',
+    name: 'Conjunto de limpeza',
     image: limpezaImg,
     reserved: false,
     quantity: 1,
     reservedBy: '',
+    link: '',
   },
 
   {
@@ -289,15 +339,17 @@ export const giftsData = [
     reserved: false,
     quantity: 1,
     reservedBy: '',
+    link: '',
   },
 
   {
     id: 29,
     name: 'Escorredor de louças',
-    image: escorredorImg,
+    image: escorredorLoucasImg,
     reserved: false,
     quantity: 1,
     reservedBy: '',
+    link: '',
   },
 
   {
@@ -307,6 +359,7 @@ export const giftsData = [
     reserved: false,
     quantity: 1,
     reservedBy: '',
+    link: '',
   },
 
   {
@@ -316,24 +369,27 @@ export const giftsData = [
     reserved: false,
     quantity: 1,
     reservedBy: '',
+    link: '',
   },
 
   {
     id: 32,
-    name: 'Conjunto travessa de vidro',
+    name: 'Conjunto de Travessa de Vidro',
     image: travessaImg,
     reserved: false,
     quantity: 1,
     reservedBy: '',
+    link: '',
   },
 
   {
     id: 33,
-    name: 'Utensílios de cozinha',
+    name: 'Utensílios de cozinha de bambo',
     image: utensiliosImg,
     reserved: false,
     quantity: 1,
     reservedBy: '',
+    link: '',
   },
 
   {
@@ -343,6 +399,7 @@ export const giftsData = [
     reserved: false,
     quantity: 1,
     reservedBy: '',
+    link: '',
   },
 
   {
@@ -352,6 +409,7 @@ export const giftsData = [
     reserved: false,
     quantity: 1,
     reservedBy: '',
+    link: '',
   },
 
   {
@@ -361,23 +419,266 @@ export const giftsData = [
     reserved: false,
     quantity: 1,
     reservedBy: '',
+    link: '',
   },
 
   {
     id: 37,
-    name: 'Utensílios de cozinha',
+    name: 'Utensílios para confeitaria',
     image: utensilios2Img,
     reserved: false,
     quantity: 1,
     reservedBy: '',
+    link: '',
   },
 
   {
     id: 38,
-    name: 'Conjunto copos',
+    name: 'Conjunto de copos',
     image: copos2Img,
     reserved: false,
     quantity: 1,
     reservedBy: '',
+    link: '',
+  },
+
+  {
+    id: 39,
+    name: 'Mop Giratório',
+    image: mopImg,
+    reserved: false,
+    quantity: 1,
+    reservedBy: '',
+    link: '',
+  },
+  
+  {
+    id: 40,
+    name: 'Potes Organizadores',
+    image: potesOrganizadoresImg,
+    reserved: false,
+    quantity: 1,
+    reservedBy: '',
+    link: '',
+  },
+  
+  {
+    id: 41,
+    name: 'Pilão',
+    image: pilaoImg,
+    reserved: false,
+    quantity: 1,
+    reservedBy: '',
+    link: '',
+  },
+  
+  {
+    id: 42,
+    name: 'Lixeira Inox',
+    image: lixeiraImg,
+    reserved: false,
+    quantity: 1,
+    reservedBy: '',
+    link: '',
+  },
+  
+  {
+    id: 43,
+    name: 'Varal de Chão',
+    image: varalImg,
+    reserved: false,
+    quantity: 1,
+    reservedBy: '',
+    link: '',
+  },
+  
+  {
+    id: 44,
+    name: 'Kit Bartender',
+    image: bartenderImg,
+    reserved: false,
+    quantity: 1,
+    reservedBy: '',
+    link: '',
+  },
+  
+  {
+    id: 45,
+    name: 'Conjuntos de Talheres 24 Peças',
+    image: talheresImg,
+    reserved: false,
+    quantity: 1,
+    reservedBy: '',
+    link: '',
+  },
+  
+  {
+    id: 46,
+    name: 'Bule de Chá',
+    image: buleImg,
+    reserved: false,
+    quantity: 1,
+    reservedBy: '',
+    link: '',
+  },
+  
+  {
+    id: 47,
+    name: 'Potes de Plásticos Retangulares',
+    image: potesPlasticosImg,
+    reserved: false,
+    quantity: 1,
+    reservedBy: '',
+    link: '',
+  },
+  
+  {
+    id: 48,
+    name: 'Potes de Plásticos Redondos',
+    image: potesRedondosImg,
+    reserved: false,
+    quantity: 1,
+    reservedBy: '',
+    link: '',
+  },
+  
+  {
+    id: 49,
+    name: 'Tesoura para Cozinha',
+    image: tesouraImg,
+    reserved: false,
+    quantity: 1,
+    reservedBy: '',
+    link: '',
+  },
+  
+  {
+    id: 50,
+    name: 'Utensilios de Cozinha de Inox',
+    image: utensiliosInoxImg,
+    reserved: false,
+    quantity: 1,
+    reservedBy: '',
+    link: '',
+  },
+  
+  {
+    id: 51,
+    name: 'Afiador de Facas',
+    image: afiadorImg,
+    reserved: false,
+    quantity: 1,
+    reservedBy: '',
+    link: '',
+  }, 
+  
+  {
+    id: 52,
+    name: 'Petisqueira de Vidro',
+    image: petisqueiraVidroImg,
+    reserved: false,
+    quantity: 1,
+    reservedBy: '',
+    link: '',
+  }, 
+
+  {
+    id: 53,
+    name: 'Petisqueira de Bambu',
+    image: petisqueiraBambuImg,
+    reserved: false,
+    quantity: 1,
+    reservedBy: '',
+    link: '',
+  },
+
+  {
+    id: 54,
+    name: 'Cuzcuzeira',
+    image: cuzcuzeiraImg,
+    reserved: false,
+    quantity: 1,
+    reservedBy: '',
+    link: '',
+  }, 
+
+  {
+    id: 53,
+    name: 'Porta Tempero',
+    image: portaTemperoImg,
+    reserved: false,
+    quantity: 1,
+    reservedBy: '',
+    link: '',
+  },
+
+  {
+    id: 54,
+    name: 'Bandeija',
+    image: BandeijaImg,
+    reserved: false,
+    quantity: 1,
+    reservedBy: '',
+    link: '',
+  },  
+
+  {
+    id: 55,
+    name: 'Conjunto de Colheres Medidoras',
+    image: colherMedidoraImg,
+    reserved: false,
+    quantity: 1,
+    reservedBy: '',
+    link: '',
+  },  
+
+  {
+    id: 56,
+    name: 'Escorredor de Macarrão',
+    image: escorredorImg,
+    reserved: false,
+    quantity: 1,
+    reservedBy: '',
+    link: '',
+  }, 
+  
+  {
+    id: 57,
+    name: 'Porta Frios',
+    image: portaFriosImg,
+    reserved: false,
+    quantity: 1,
+    reservedBy: '',
+    link: '',
+  },
+
+  {
+    id: 58,
+    name: 'Conjunto de Dosadores',
+    image: dosadoresImg,
+    reserved: false,
+    quantity: 1,
+    reservedBy: '',
+    link: '',
+  },
+
+  {
+    id: 59,
+    name: 'Potes em Cerâmica',
+    image: potesCeramicaImg,
+    reserved: false,
+    quantity: 2,
+    reservedBy: '',
+    link: '',
+  },
+
+  {
+    id: 60,
+    name: 'Porta Alho',
+    image: portaAlhoImg,
+    reserved: false,
+    quantity: 1,
+    reservedBy: '',
+    link: '',
   },
 ];

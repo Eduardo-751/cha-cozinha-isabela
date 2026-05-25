@@ -782,12 +782,31 @@ export default function WeddingSite() {
                                 <h3 className="text-3xl font-serif leading-tight min-h-[76px] flex items-start">
                                   {gift.name}
                                 </h3>
+                                <span
+                                  className={`
+      inline-flex items-center
+      text-sm px-3 py-1 rounded-full
+      ${gift.reservedCount >= gift.quantity
+                                      ? 'bg-green-100 text-green-700'
+                                      : 'bg-stone-100 text-stone-600'
+                                    }
+    `}
+                                >
+                                  Disponível {gift.quantity - (gift.reservedCount || 0)} de {gift.quantity}
+                                </span>
 
-                                <div className="h-[40px] mt-4">
+                                <div className="mt-4 min-h-[40px]">
                                   {(gift.reservedBy || []).length > 0 && (
-                                    <p className="text-stone-500 text-sm">
-                                      Escolhido por {gift.reservedBy.join(', ')}
-                                    </p>
+                                    <div className="space-y-1">
+                                      {gift.reservedBy.map((person, index) => (
+                                        <p
+                                          key={index}
+                                          className="text-stone-500 text-sm"
+                                        >
+                                          Escolhido por {person}
+                                        </p>
+                                      ))}
+                                    </div>
                                   )}
                                 </div>
                               </div>
@@ -820,6 +839,17 @@ export default function WeddingSite() {
                                   )}
                                 </div>
 
+                                {gift.link && (
+                                  <a
+                                    href={gift.link}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className=" block text-center text-sm text-stone-500 hover:text-stone-900 transition mt-3"
+                                  >
+                                    Ver referência →
+                                  </a>
+                                )}
+
                               </div>
 
                             </div>
@@ -832,13 +862,13 @@ export default function WeddingSite() {
                 ))}
               </div>
               <div className="text-center mt-14">
-                  <Link
-                    to="/presentes"
-                    className=" inline-flex items-center justify-center px-8 py-4 rounded-full border border-stone-300 text-stone-800 hover:bg-stone-900 hover:text-white transition"
-                  >
-                    Ver lista completa
-                  </Link>
-                </div>
+                <Link
+                  to="/presentes"
+                  className=" inline-flex items-center justify-center px-8 py-4 rounded-full border border-stone-300 text-stone-800 hover:bg-stone-900 hover:text-white transition"
+                >
+                  Ver lista completa
+                </Link>
+              </div>
             </div>
           </div>
         </div>
