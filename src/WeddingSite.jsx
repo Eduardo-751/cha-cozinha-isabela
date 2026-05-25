@@ -733,7 +733,7 @@ export default function WeddingSite() {
               onClick={nextSlide}
               className="absolute right-2 sm:right-[-20px] top-1/2 -translate-y-1/2 z-20 w-14 h-14 rounded-full bg-white/90
                         backdrop-blur-xl border border-stone-200 shadow-lg flex items-center justify-center hover:bg-stone-900 
-                        hover:text-white transitio duration-300"
+                        hover:text-white transition duration-300"
             >
               →
             </button>
@@ -762,7 +762,7 @@ export default function WeddingSite() {
                           gift.reservedBy?.includes(user?.displayName);
 
                         const unavailable =
-                          gift.reservedCount >= gift.quantity;
+                          (gift.reservedCount || 0) >= (gift.quantity || 1);
 
                         return (
                           <div key={gift.id} className="group w-full">
@@ -776,41 +776,40 @@ export default function WeddingSite() {
                               />
                             </div>
 
-                            <div className="flex flex-col justify-between min-h-[220px]">
+                            <div className="flex flex-col justify-between min-h-[260px]">
 
                               <div>
 
-                                <div className="min-h-[76px]">
+                                <div className="min-h-[90px]">
 
                                   <h3 className="text-3xl font-serif leading-tight mb-3">
                                     {gift.name}
                                   </h3>
 
                                   <span className="text-sm text-stone-500">
-                                    Disponível {gift.quantity - (gift.reservedCount || 0)} de {gift.quantity}
+                                    Disponível {(
+                                      (gift.quantity || 1) -
+                                      (gift.reservedCount || 0)
+                                    )} de {gift.quantity || 1}
                                   </span>
 
                                 </div>
 
-                                <div className="mt-4 min-h-[40px]">
+                                <div className="mt-4 min-h-[60px]">
 
                                   {(gift.reservedBy || []).length > 0 && (
-
                                     <div className="flex flex-col gap-1">
 
                                       {gift.reservedBy.map((person, index) => (
-
                                         <p
                                           key={index}
                                           className="text-stone-500 text-sm"
                                         >
                                           Escolhido por {person}
                                         </p>
-
                                       ))}
 
                                     </div>
-
                                   )}
 
                                 </div>
@@ -823,8 +822,8 @@ export default function WeddingSite() {
                                   onClick={() => reserveGift(gift)}
                                   disabled={unavailable}
                                   className={`w-full rounded-full py-4 transition duration-300 ${unavailable
-                                    ? 'bg-stone-200 text-stone-500 cursor-not-allowed'
-                                    : 'bg-stone-900 text-white hover:opacity-90'
+                                      ? 'bg-stone-200 text-stone-500 cursor-not-allowed'
+                                      : 'bg-stone-900 text-white hover:opacity-90'
                                     }`}
                                 >
                                   {unavailable
@@ -850,7 +849,7 @@ export default function WeddingSite() {
                                     href={gift.link}
                                     target="_blank"
                                     rel="noreferrer"
-                                    className=" block text-center text-sm text-stone-500 hover:text-stone-900 transition mt-3"
+                                    className="block text-center text-sm text-stone-500 hover:text-stone-900 transition"
                                   >
                                     Ver referência →
                                   </a>
