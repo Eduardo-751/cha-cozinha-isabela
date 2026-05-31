@@ -85,6 +85,7 @@ import galheteiroImg from '../assets/galheteiroImg.jpg';
 import xicarasChaImg from '../assets/xicarasChaImg.jpg';
 import xicarasCafeImg from '../assets/xicarasCafeImg.jpg';
 import baldeImg from '../assets/baldeImg.jpg';
+import kitVinhoImg from '../assets/kitVinhoImg.jpg';
 
 export const giftsData = [
   {
@@ -902,7 +903,7 @@ export const giftsData = [
   {
     id: 82,
     name: 'Kit para Vinho',
-    image: semImagem,
+    image: kitVinhoImg,
     reserved: false,
     quantity: 1,
     reservedBy: '',
