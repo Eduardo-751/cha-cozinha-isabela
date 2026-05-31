@@ -1,30 +1,14 @@
+
+import { collection, query, where, getDocs, getDoc, doc, setDoc, onSnapshot, 
+         serverTimestamp, arrayRemove, updateDoc, increment, arrayUnion } from 'firebase/firestore';
+
 import { useEffect, useState, useMemo } from 'react';
-
-import {
-  collection,
-  query,
-  where,
-  getDocs,
-  getDoc,
-  doc,
-  setDoc,
-  onSnapshot,
-  serverTimestamp,
-  arrayRemove,
-  updateDoc,
-  increment,
-  arrayUnion
-} from 'firebase/firestore';
-
-import {
-  signInWithPopup,
-  signOut,
-  onAuthStateChanged,
-} from 'firebase/auth';
+import { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
 
 import { Link } from 'react-router-dom';
 import { db, auth, provider } from './firebase';
 import { giftsData } from './data/gifts';
+
 import bgImage from './assets/bg1.jpg';
 
 export default function WeddingSite() {
