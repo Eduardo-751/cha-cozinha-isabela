@@ -84,6 +84,7 @@ import frascoImg from '../assets/frascoImg.jpg';
 import galheteiroImg from '../assets/galheteiroImg.jpg';
 import xicarasChaImg from '../assets/xicarasChaImg.jpg';
 import xicarasCafeImg from '../assets/xicarasCafeImg.jpg';
+import baldeImg from '../assets/baldeImg.jpg';
 
 export const giftsData = [
   {
