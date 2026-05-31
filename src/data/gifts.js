@@ -34,7 +34,7 @@ import varalImg from '../assets/VaralImg.jpg';
 import lixeiraImg from '../assets/LixeiraImg.jpg';
 import pilaoImg from '../assets/PilaoImg.jpg';
 import mopImg from '../assets/MopImg.jpg';
-import mop2Img from '../assets/Mop2Img.jpg';
+import mop2Img from '../assets/mop2Img.jpg';
 import petisqueiraVidroImg from '../assets/PetisqueiraVidroImg.jpg';
 import petisqueiraBambuImg from '../assets/PetisqueiraBambuImg.jpg';
 import cuzcuzeiraImg from '../assets/cuzcuzeiraImg.jpg';
