@@ -3,9 +3,8 @@ import queijeiraImg from '../assets/queijeiraImg.jpg';
 import jarraImg from '../assets/jarraImg.jpg';
 import tabuaImg from '../assets/tabuaImg.jpg';
 import potesVidroImg from '../assets/potesImg.jpg';
-import pratoDuploImg from '../assets/pratoduploImg.jpg';
-import meleiraImg from '../assets/meleiraImg.jpg';
-import fruteiraImg from '../assets/fruteiraImg.jpg';
+import lavaboImg from '../assets/lavaboImg.jpg';
+import lavabo2Img from '../assets/lavabo2Img.jpg';
 import hermeticosImg from '../assets/hermeticosImg.jpg';
 import balancaImg from '../assets/balancaImg.jpg';
 import vidroImg from '../assets/potesvidrosImg.jpg';
@@ -68,10 +67,6 @@ import tacasChampagneImg from '../assets/tacasChampagneImg.jpg';
 import cestoRoupasImg from '../assets/cestoRoupasImg.jpg';
 import dispensersImg from '../assets/dispensersImg.jpg';
 import escadaImg from '../assets/escadaImg.jpg';
-import ferroImg from '../assets/ferroImg.jpg';
-import aspiradorImg from '../assets/aspiradorImg.jpg';
-import vaporizadorImg from '../assets/vaporizadorImg.jpg';
-import sanduicheiraImg from '../assets/sanduicheiraImg.jpg';
 import conjuntoQueijoImg from '../assets/conjuntoQueijoImg.jpg';
 import organizadorTemperosImg from '../assets/organizadorTemperosImg.jpg';
 import kitbaldeImg from '../assets/kitbaldeImg.jpg';
@@ -85,7 +80,8 @@ import galheteiroImg from '../assets/galheteiroImg.jpg';
 import xicarasChaImg from '../assets/xicarasChaImg.jpg';
 import xicarasCafeImg from '../assets/xicarasCafeImg.jpg';
 import baldeImg from '../assets/baldeImg.jpg';
-import kitVinhoImg from '../assets/kitVinhoImg.jpg';
+import refratarioImg from '../assets/refratarioImg.jpg';
+import banheiroImg from '../assets/banheiroImg.jpg';
 
 export const giftsData = [
   {
@@ -120,12 +116,12 @@ export const giftsData = [
 
   {
     id: 4,
-    name: 'Travessa Retangular Branca',
+    name: 'Conjunto de Assadeira de Cerâmica Retangular Branca',
     image: assadeira1Img,
     reserved: false,
     quantity: 1,
     reservedBy: '',
-    link: 'https://www.wolycasa.com.br/products/conjunto-3-refratarios-com-alca-basic-branco-porcelana-lyor-1?currency=BRL&country=BR&variant=45213237903539&stkn=96013d0a2137&utm_source=google&utm_medium=cpc&utm_campaign=23486005324_191400810626&utm_content=793631968216&utm_term=&nemu_source=google&nemu_campaign=23486005324&nemu_adset=191400810626&nemu_content=793631968216&nemu_term=&gad_source=4&gad_campaignid=23486005324&gbraid=0AAAAApF2izmlOo2u-Y6kDniVH5VIwrZbe&gclid=CjwKCAjw8uTQBhAdEiwAVvtJyi_dJW7RJvG3dYBPMPo6o8uFPkrhh_Ka2Iu1zo0PLKn1mP_nnT9GgRoCr9gQAvD_BwE',
+    link: 'https://www.lojakaster.com.br/conjunto-3-refratarios-com-alca-basic-branco-porcelana?utm_source=google&utm_medium=Shopping&utm_campaign=conjunto-3-refratarios-com-alca-basic-branco-porcelana&inStock=&srsltid=AfmBOoptZiplov_K87eNoSpUrnWEO0JuMYz4-LRJ_zfDNIpiGodV_dM6A14#derivacao=8',
   },
 
   {
@@ -148,36 +144,34 @@ export const giftsData = [
     link: 'https://www.amazon.com.br/Travessas-Refratárias-hermetico-marmita-hermetica/dp/B0DRBCBMB8/ref=asc_df_B0DRBCBMB8?mcid=420c0d5c022e37d29fcc8c48a0049887&tag=googleshopp00-20&linkCode=df0&hvadid=709878548112&hvpos=&hvnetw=g&hvrand=15070788967836369338&hvpone=&hvptwo=&hvqmt=&hvdev=c&hvdvcmdl=&hvlocint=&hvlocphy=9196530&hvtargid=pla-2403942325178&psc=1&hvocijid=15070788967836369338-B0DRBCBMB8-&hvexpln=0&language=pt_BR',
   },
 
-  //A ver
   {
     id: 7,
-    name: 'Prato duplo',
-    image: pratoDuploImg,
+    name: 'Conjunto de Refratário de Cerâmica Retangular Branca',
+    image: refratarioImg,
     reserved: false,
     quantity: 1,
     reservedBy: '',
-    link: 'https://www.amazon.com.br/WOLFF-Prato-Duplo-Doces-Porcelana/dp/B0D5KCHH3B/ref=sr_1_6?__mk_pt_BR=ÅMÅŽÕÑ&crid=EHK1X3S0Y0F2&dib=eyJ2IjoiMSJ9.gExLrMLIL95J58AHOuFxOIyZTiUeGrtL_Jw-8TTxfUw7iavw4TNfdoGzeSlVvBCaHwWRfIkRwrGStfhycyyMDniCkwtWy7m6OJkyfDkXdNjCPopOvHUYuQssw9UbkVBeteUU769bn89AwGqqu35nHmCz1H6WAqFBrMHy9Y21nnkSB_xWvfB89ogDp2TcmeR5O2hJ3U61J3q30MpGtjHxupJkK9pmAkriDpO3yAfcI3GWacLgnGEJ7IVhSrBEM-Xk6oOFuSt-lSQtYuW7s7b5O211InDmA2atTZmsIyWotn8.fVpyIJpfQTEz4Zs5pVHKhlPzMqT8ZPc5IJUabClL_RQ&dib_tag=se&keywords=prato+duplo&qid=1779682131&sprefix=prato+duplo%2Caps%2C210&sr=8-6&ufe=app_do%3Aamzn1.fos.db68964d-7c0e-4bb2-a95c-e5cb9e32eb12',
+    link: 'https://www.wolycasa.com.br/products/conjunto-3-refratarios-linea-branco-porcelana-lyor-1',
   },
 
   {
     id: 8,
-    name: 'Meleira',
-    image: meleiraImg,
+    name: 'Jogo de Lavabo 2 Peças 100% Algodão Ventura Branco',
+    image: lavabo2Img,
     reserved: false,
     quantity: 1,
     reservedBy: '',
-    link: 'https://www.camicado.com.br/p/meleira-home-style-light-acacia/-/A-100682150-br.lc?sku=100682168',
+    link: 'https://www.karsten.com.br/jogo-de-lavabo-2-pecas-100-algodao-ventura-branco-3442505/p',
   },
 
-  //A ver
   {
     id: 9,
-    name: 'Fruteira',
-    image: fruteiraImg,
+    name: 'Jogo de Lavabo 2 Peças 100% Algodão Felícia Branco',
+    image: lavaboImg,
     reserved: false,
     quantity: 1,
     reservedBy: '',
-    link: 'https://www.amazon.com.br/Fruteira-Acrilico-Transparente-Sofisticado-Resistente/dp/B0GRCDGW4T/ref=sr_1_4?__mk_pt_BR=ÅMÅŽÕÑ&crid=I3N2ZHAU4467&dib=eyJ2IjoiMSJ9._sciUziEC3r_VpJARdzU0n4qUhaEHyC1TL3AYadu0m7oYoaEy5Ga1eqGWv68LrEjcNDkGQcmpIJP2M3ae92xsJhMG4wgKJgryZ29-NfXUjpFvJOM2JzBjNGnDZg9qK6q1-l9umz4oStViQ6gKKHkxulLldNFt6Jcta-Q7H3gYWhpOi2QiZtHo2My3K2BmUjRZdulwVVcrxClqHO_3KUAWe8hWNQklf0nFXqZunxDXJs.uIr0kSH2BzlyvMIyU_s2MpNQR0UdweE9bCMfcLq-nO8&dib_tag=se&keywords=Fruteira+cristal&qid=1779800968&s=kitchen&sprefix=fruteira+cristal%2Ckitchen%2C210&sr=1-4',
+    link: 'https://www.karsten.com.br/jogo-de-lavabo-2-pecas-100-algodao-felicia-branco-3039317/p',
   },
 
   {
@@ -225,7 +219,7 @@ export const giftsData = [
     name: 'Potes Organizadores para Fruta',
     image: organizadorGeladeiraImg,
     reserved: false,
-    quantity: 1,
+    quantity: 2,
     reservedBy: '',
     link: 'https://www.amazon.com.br/OF650NT-Organizadores-Geladeira-Escorredor-Interno/dp/B0CZ7JRF9H/ref=sr_1_10?__mk_pt_BR=ÅMÅŽÕÑ&crid=1ZTS75AVVFPQ&dib=eyJ2IjoiMSJ9.5RACmJYFGe4gquOuf0HKVNQG7ALoXN4l1TLrxaHV727NkKI8fmpM37A_Sy32kYnKR_AJcjkTzxBesN5-qBGag1Za6IfoLQYSRSE0rIfKAPVOQyIMpWo0eUhxZn-abkdRuxrezSo8b3iIxMS8HscO0lHSsADUjCPFJ57Xeu0yQrieV-qSEhBmHlwRD4sd7qpV8hVh7xFBY_iMsUqeAwCojTwYwPesKewem2I8elyYTO0dL_3wivw4-BiYSAxYkFxB10gZ8nK3yzPnXr7rsxiD96LDakdXY5JqVCZadPDTJ44.SOy-DzuZmiXpWA3wrHij4wTwl6dzdL4xOoxR6oEc8dg&dib_tag=se&keywords=Kit+2+Organizadores+de+Geladeira+3%2C2L+Cestos+Escorredor&qid=1780260351&sprefix=kit+2+organizadores+de+geladeira+3+2l+cestos+escorredor%2Caps%2C185&sr=8-10&ufe=app_do%3Aamzn1.fos.6d798eae-cadf-45de-946a-f477d47705b9',
   },
@@ -237,7 +231,7 @@ export const giftsData = [
     reserved: false,
     quantity: 1,
     reservedBy: '',
-    link: 'https://www.amazon.com.br/Oster-70562-22-conjunto-talheres-escovado/dp/B004E33WWM/ref=asc_df_B004E33WWM?mcid=dffe1ecb85a232f38bf3ff03ea893eaf&tag=googleshopp00-20&linkCode=df0&hvadid=709964506220&hvpos=&hvnetw=g&hvrand=1894419014178605958&hvpone=&hvptwo=&hvqmt=&hvdev=c&hvdvcmdl=&hvlocint=&hvlocphy=9196530&hvtargid=pla-384480306175&psc=1&hvocijid=1894419014178605958-B004E33WWM-&hvexpln=0&language=pt_BR',
+    link: 'https://www.amazon.com.br/Conjunto-Facas-Profissionais-Aço-Inoxidável/dp/B0FBNN6CQG/ref=sr_1_1_sspa?__mk_pt_BR=ÅMÅŽÕÑ&crid=3TDFS5FG7C67J&dib=eyJ2IjoiMSJ9.Uq6U3HT-_pCP-c5dLbZ8f5kCDpUctQR3oz6Yrf5lRq_NKwnZS4EvwR_UVWFs9sdgg1P-URTkd12wt3KdQGsdqFyioVrfNDiStPDpXCxkXL0AsKv00QK-5QEO1-2ea-ODpoBIx2bQFTttRKvP7Ehq11JKHoNFlVXfUvTj_52J4KmKbNHKhw4ONnLqS_WdxHkZw70SZ1a947eCDuxb8gZxfnm-r83pXdqCiIsHLTZgNS0.nZgZGPvW7JIysh0_GE8r-cTuo-ZH0OkdnoQLHdsZMwc&dib_tag=se&keywords=Kuhn+Rikon+Faca&qid=1780601519&s=kitchen&sprefix=kuhn+rikon+faca%2Ckitchen%2C190&sr=1-1-spons&ufe=app_do%3Aamzn1.fos.db68964d-7c0e-4bb2-a95c-e5cb9e32eb12&sp_csd=d2lkZ2V0TmFtZT1zcF9hdGY&psc=1',
   },
 
   {
@@ -382,7 +376,7 @@ export const giftsData = [
 
   {
     id: 30,
-    name: 'Prato para Bolo',
+    name: 'Prato para Bolo de Vidro',
     image: boleiraImg,
     reserved: false,
     quantity: 1,
@@ -395,7 +389,7 @@ export const giftsData = [
     name: 'Frasco de vidro com tampa hermética',
     image: frascoImg,
     reserved: false,
-    quantity: 1,
+    quantity: 2,
     reservedBy: '',
     link: 'https://www.amazon.com.br/MDLUU-hermética-recipiente-armazenamento-boticário/dp/B08XB1M6ZP/ref=asc_df_B08XB1M6ZP?mcid=11ff6826ffda371cbb4fca7adc1eaf84&tag=googleshopp00-20&linkCode=df0&hvadid=742212429005&hvpos=&hvnetw=g&hvrand=16213270354084567879&hvpone=&hvptwo=&hvqmt=&hvdev=c&hvdvcmdl=&hvlocint=&hvlocphy=9196530&hvtargid=pla-1244369709722&psc=1&hvocijid=16213270354084567879-B08XB1M6ZP-&hvexpln=0&language=pt_BR',
   },
@@ -545,7 +539,7 @@ export const giftsData = [
     name: 'Porta Tempero',
     image: portaTemperoImg,
     reserved: false,
-    quantity: 1,
+    quantity: 2,
     reservedBy: '',
     link: 'https://www.amazon.com.br/organizadores-temperos-peças-Linha-Keep/dp/B0CPT7T9BZ/ref=asc_df_B0CPT7T9BZ?mcid=c93a9bd155f03c618469307ea4f3e68a&tag=googleshopp00-20&linkCode=df0&hvadid=709989056369&hvpos=&hvnetw=g&hvrand=155176135155085173&hvpone=&hvptwo=&hvqmt=&hvdev=c&hvdvcmdl=&hvlocint=&hvlocphy=9196530&hvtargid=pla-2347776563225&psc=1&hvocijid=155176135155085173-B0CPT7T9BZ-&hvexpln=0&language=pt_BR',
   },
@@ -832,42 +826,12 @@ export const giftsData = [
 
   {
     id: 75,
-    name: 'Ferro de Passar',
-    image: ferroImg,
+    name: 'Conjunto 6 Peças de Bambu e ABS para Banheiro Branco',
+    image: banheiroImg,
     reserved: false,
     quantity: 1,
     reservedBy: '',
-    link: 'https://www.oster.com.br/ferro-de-passar-a-vapor-oster-antiaderente-verde/p',
-  },
-
-  {
-    id: 76,
-    name: 'Aspirador de Pó Vertical',
-    image: aspiradorImg,
-    reserved: false,
-    quantity: 1,
-    reservedBy: '',
-    link: 'https://www.oster.com.br/aspirador-de-po-vertical-oster-stick-2-em-1/p',
-  },
-
-  {
-    id: 77,
-    name: 'Vaporizador Passadeira de Roupas Portátil',
-    image: vaporizadorImg,
-    reserved: false,
-    quantity: 1,
-    reservedBy: '',
-    link: 'https://www.oster.com.br/passadeira-a-vapor-portatil-power-oster/p',
-  },
-
-  {
-    id: 78,
-    name: 'Sanduicheira Inox',
-    image: sanduicheiraImg,
-    reserved: false,
-    quantity: 1,
-    reservedBy: '',
-    link: 'https://www.oster.com.br/sanduicheira-inox-multiuso-oster/p',
+    link: 'https://www.wolycasa.com.br/products/conjunto-6-pecas-de-bambu-e-abs-para-banheiro-branco-lyor-1?_pos=3&_sid=68258fe29&_ss=r',
   },
 
   {
@@ -881,16 +845,6 @@ export const giftsData = [
   },
 
   {
-    id: 80,
-    name: 'Mixer Multifuncional',
-    image: mixerImg,
-    reserved: false,
-    quantity: 1,
-    reservedBy: '',
-    link: 'https://www.oster.com.br/mixer-multifuncional-3-em-1-black-oster/p',
-  },
-
-  {
     id: 81,
     name: 'Organizador de Temperos para Geladeira',
     image: organizadorTemperosImg,
@@ -898,16 +852,6 @@ export const giftsData = [
     quantity: 1,
     reservedBy: '',
     link: 'https://www.amazon.com.br/Organizadores-Geladeira-Temperos-Frescos-Hortaliças/dp/B0F8R6557R/ref=sr_1_5?__mk_pt_BR=ÅMÅŽÕÑ&crid=31ANHM46FQH1H&dib=eyJ2IjoiMSJ9.IROFtwg5jzfRYt-dzNaQiq_mQ5OUcmBg9pZAqFpTpX_R8DPKU7On_AriJsSiaT6LmsVxCy1IB3pHZpLCwzPaW2ksIDc0wOads24RcLRMvdqkI8gch16PO8BuDb0imIs0IoO_h_kAuY9cmwfc0tPd9hHJ2LZGqMOB9dQ7bi2X4MMndirErPLKJ6nQJ95JcrMnp2ji0Ru20cQSerxoDPxQbvJ4XH2xLep9WsTgtPDP99A.TE-LUMoSPmEvzFuTlUEqVxzYDH6Dwua3mr44MMieI-A&dib_tag=se&keywords=Kit+Organizador+de+Temperos+Clear+Fresh&qid=1780266211&s=kitchen&sprefix=kit+organizador+de+temperos+clear+fresh%2Ckitchen%2C185&sr=1-5&ufe=app_do%3Aamzn1.fos.6d798eae-cadf-45de-946a-f477d47705b9',
-  },
-
-  {
-    id: 82,
-    name: 'Kit para Vinho',
-    image: kitVinhoImg,
-    reserved: false,
-    quantity: 1,
-    reservedBy: '',
-    link: 'https://www.oster.com.br/kit-para-vinho-oster-inspire/p',
   },
 
   {
