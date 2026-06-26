@@ -1,6 +1,8 @@
 
-import { collection, query, where, getDocs, getDoc, doc, setDoc, onSnapshot, 
-         serverTimestamp, arrayRemove, updateDoc, increment, arrayUnion } from 'firebase/firestore';
+import {
+  collection, query, where, getDocs, getDoc, doc, setDoc, onSnapshot,
+  serverTimestamp, arrayRemove, updateDoc, increment, arrayUnion
+} from 'firebase/firestore';
 
 import { useEffect, useState, useMemo } from 'react';
 import { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
@@ -264,16 +266,30 @@ export default function WeddingSite() {
   ========================================= */
 
   async function reserveGift(gift) {
-    if (!user || loadingGift) return;
+    if (loadingGift) return;
+
+    let currentUser = user;
+
+    // Se não estiver logado, faz login
+    if (!currentUser) {
+      try {
+        const result = await signInWithPopup(auth, provider);
+        currentUser = result.user;
+        setUser(currentUser); // opcional, o onAuthStateChanged também fará isso
+      } catch (error) {
+        console.error(error);
+        return; // usuário cancelou o login
+      }
+    }
 
     setLoadingGift(true);
 
     try {
-      const person = user.displayName;
+      const person = currentUser.displayName;
 
       const giftRef = doc(
         db,
-        'presentes',
+        "presentes",
         String(gift.id)
       );
 
@@ -290,28 +306,24 @@ export default function WeddingSite() {
       }
 
       if (currentData.reservedCount >= currentData.quantity) {
-        alert('Esse presente já foi reservado ✨');
-        setLoadingGift(false);
-        return;
-      }
-
-      const alreadyReserved =
-        currentData.reservedBy?.includes(person);
-
-      if (alreadyReserved) {
-        alert('Você já reservou este presente ✨');
-        setLoadingGift(false);
+        toast("Esse presente já foi reservado");
         return;
       }
 
       await setDoc(giftRef, {
         quantity: currentData.quantity,
         reservedCount: currentData.reservedCount + 1,
-        reservedBy: [...(currentData.reservedBy || []), person,],
+        reservedBy: [
+          ...(currentData.reservedBy || []),
+          person,
+        ],
       });
+
+      toast.success("Presente reservado ✨");
+
     } catch (error) {
       console.error(error);
-      alert('Erro ao reservar presente.');
+      toast.error("Erro ao reservar");
     } finally {
       setLoadingGift(false);
     }
@@ -806,8 +818,8 @@ export default function WeddingSite() {
                                   onClick={() => reserveGift(gift)}
                                   disabled={unavailable}
                                   className={`w-full rounded-full py-4 transition duration-300 ${unavailable
-                                      ? 'bg-stone-200 text-stone-500 cursor-not-allowed'
-                                      : 'bg-stone-900 text-white hover:opacity-90'
+                                    ? 'bg-stone-200 text-stone-500 cursor-not-allowed'
+                                    : 'bg-stone-900 text-white hover:opacity-90'
                                     }`}
                                 >
                                   {unavailable
